@@ -1,6 +1,9 @@
 # Compiled class file
 *.class
 
+# Ignore Mac DS_Store files
+.DS_Store
+
 # Log file
 *.log
 
