@@ -1,6 +1,10 @@
+package examples;
+
+import src.Line;
+import src.Point;
 import java.io.FileNotFoundException;
 
-class Wireframe
+public class Wireframe
 {
     public static void main(String[] args)
     {

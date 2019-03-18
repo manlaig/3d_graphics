@@ -1,3 +1,5 @@
+package src;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Scanner;
@@ -7,17 +9,17 @@ import java.io.FileNotFoundException;
 
 public class Line extends JFrame
 {
-    int width = 800;
-    int height = 800;
+    public int width = 800;
+    public int height = 800;
 
-    Line()
+    public Line()
     {
         setSize(width, height);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
 
-    void line(Point start, Point end, Color color)
+    public void line(Point start, Point end, Color color)
     {
         float dirX = end.x - start.x;
         float dirY = end.y - start.y;
@@ -40,7 +42,7 @@ public class Line extends JFrame
         }
     }
 
-    void circle(Point pos, int radius)
+    public void circle(Point pos, int radius)
     {
         for(double degree = 0; degree <= 360; degree += 0.1)
         {
@@ -53,14 +55,14 @@ public class Line extends JFrame
         }
     }
 
-    void triangle(Point p1, Point p2, Point p3, Color color)
+    public void triangle(Point p1, Point p2, Point p3, Color color)
     {
         line(p1, p2, color);
         line(p2, p3, color);
         line(p3, p1, color);
     }
 
-    void wireFrameRender(String fileName, Point position, float scale) throws FileNotFoundException
+    public void wireFrameRender(String fileName, Point position, float scale) throws FileNotFoundException
     {
         ArrayList<Point> vertices = new ArrayList<>();
         ArrayList<Integer> triangles = new ArrayList<>();
