@@ -43,10 +43,11 @@ public class Shape extends JFrame
         Graphics2D g = (Graphics2D) window.getGraphics();
         if(g == null)
             return;
+            
         Color original = g.getColor();
         g.setColor(color);
 
-        for(double t = 0; t <= 1; t += 0.02)
+        for(double t = 0; t <= 1; t += 0.007)
         {
             int x = (int) (start.x + t * dirX);
             int y = (int) (start.y + t * dirY);
@@ -77,7 +78,7 @@ public class Shape extends JFrame
     public void fillTriangle(Point p1, Point p2, Point p3, Color color)
     {
         /*
-        This algorithm will draw a line and remember its' 'y' value,
+        This algorithm will draw a line and remember the current point's 'y' value,
         then it will draw a line between two lines if that y is already in the map
         */
         HashMap<Integer, Point> map = new HashMap<>();
@@ -107,7 +108,7 @@ public class Shape extends JFrame
             else
                 map.put(y2, new Point(x2, y2));
 
-                
+
             int x3 = (int) (p1.x + t * (p2.x - p1.x));
             int y3 = (int) (p1.y + t * (p2.y - p1.y));
             point(x3, y3, g);

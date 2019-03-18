@@ -3,6 +3,8 @@ package examples;
 import java.io.FileNotFoundException;
 import javax.swing.*;
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Graphics;
 import src.Mesh;
 import src.Shape;
 import src.Point;
@@ -24,8 +26,9 @@ public class Wireframe
         Mesh pose = new Mesh(window, "./Models/diablo3_pose.obj");
         try
         {
-            head.wireFrameRender(new Point(3*width/4, height/2), scale);
-            pose.wireFrameRender(new Point(width/4, height/2), scale);
+            // the origin is bottom-left
+            head.wireFrameRender(new Point(3*width/4, -height/2), scale);
+            pose.wireFrameRender(new Point(width/4, -height/2), scale);
         }
         catch(FileNotFoundException e)
         {
