@@ -77,11 +77,21 @@ public class Shape extends JFrame
 
     public void fillTriangle(Point p1, Point p2, Point p3, Color color)
     {
+        // Swing's algorithm is much faster than mine
+        Graphics g = window.getGraphics();
+        if(g == null)
+            return;
+        Color original = g.getColor();
+        g.setColor(color);
+        g.fillPolygon(new int[]{(int)p1.x, (int)p2.x, (int)p3.x},
+                    new int[]{(int)p1.y, (int)p2.y, (int)p3.y}, 3);
+        g.setColor(original);
+
         /*
         This algorithm will draw a line and remember the current point's 'y' value,
         then it will draw a line between two lines if that y is already in the map
         */
-        HashMap<Integer, Point> map = new HashMap<>();
+        /*HashMap<Integer, Point> map = new HashMap<>();
 
         Graphics2D g = (Graphics2D) window.getGraphics();
         if(g == null)
@@ -118,6 +128,6 @@ public class Shape extends JFrame
                 map.put(y3, new Point(x3, y3));
         }
 
-        g.setColor(original);
+        g.setColor(original);*/
     }
 }

@@ -9,7 +9,7 @@ import src.Mesh;
 import src.Shape;
 import src.Point;
 
-public class Wireframe
+public class Lighting
 {
     public static void main(String[] args)
     {
@@ -27,8 +27,8 @@ public class Wireframe
             Mesh head = new Mesh(window, "./Models/african_head.obj");
             Mesh pose = new Mesh(window, "./Models/diablo3_pose.obj");
             // the origin is bottom-left
-            head.wireFrameRender(new Point(3*width/4, -height/2), scale, Color.black);
-            pose.wireFrameRender(new Point(width/4, -height/2), scale, Color.black);
+            head.renderLighted(new Point(3*width/4, -height/2), scale);
+            pose.renderLighted(new Point(width/4, -height/2), scale);
         }
         catch(FileNotFoundException e)
         {
