@@ -27,8 +27,8 @@ public class Wireframe
             Mesh head = new Mesh(window, "./Models/african_head.obj");
             Mesh pose = new Mesh(window, "./Models/diablo3_pose.obj");
             // the origin is bottom-left
-            head.wireFrameRender(new Point(3*width/4, -height/2), scale, Color.black);
-            pose.wireFrameRender(new Point(width/4, -height/2), scale, Color.black);
+            head.wireFrameRender(new Point(3*width/4, height/2), scale, Color.black);
+            pose.wireFrameRender(new Point(width/4, height/2), scale, Color.black);
         }
         catch(FileNotFoundException e)
         {

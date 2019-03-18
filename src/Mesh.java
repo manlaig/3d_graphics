@@ -2,9 +2,9 @@ package src;
 
 import src.Shape;
 import src.Point;
+import src.Common;
 import java.util.Scanner;
 import java.util.ArrayList;
-import java.util.Random;
 import javax.swing.*;
 import java.awt.Color;
 import java.io.File;
@@ -74,34 +74,34 @@ public class Mesh
 
     }
 
-    public void renderLighted(Point position, Point scale)
+    public void renderLighted(Point position, Point scale, Light light)
     {
-        Random rand = new Random();
         for(int i = 0; i < triangles.size(); i += 3)
         {
-            try
-            {
-                // vertices is 0-indexed
-                Point p1 = vertices.get(triangles.get(i) - 1);
-                Point p2 = vertices.get(triangles.get(i+1) - 1);
-                Point p3 = vertices.get(triangles.get(i+2) - 1);
+            // vertices is 0-indexed
+            Point p1 = vertices.get(triangles.get(i) - 1);
+            Point p2 = vertices.get(triangles.get(i+1) - 1);
+            Point p3 = vertices.get(triangles.get(i+2) - 1);
 
-                // applying transformation and scaling on the vertex
-                Point p1New = new Point(p1.x * scale.x + position.x,
-                            window.getHeight() - p1.y * scale.y + position.y,
-                            p1.z * scale.z + position.z);
-                Point p2New = new Point(p2.x * scale.x + position.x,
-                            window.getHeight() - p2.y * scale.y + position.y,
-                            p2.z * scale.z + position.z);
-                Point p3New = new Point(p3.x * scale.x + position.x,
-                            window.getHeight() - p3.y * scale.y + position.y,
-                            p3.z * scale.z + position.z);
+            // applying transformation and scaling on the vertex
+            Point p1New = new Point(p1.x * scale.x + position.x,
+                        window.getHeight() - p1.y * scale.y - position.y,
+                        p1.z * scale.z + position.z);
+            Point p2New = new Point(p2.x * scale.x + position.x,
+                        window.getHeight() - p2.y * scale.y - position.y,
+                        p2.z * scale.z + position.z);
+            Point p3New = new Point(p3.x * scale.x + position.x,
+                        window.getHeight() - p3.y * scale.y - position.y,
+                        p3.z * scale.z + position.z);
 
-                // find cross product, then compute dot product, which is the light intensity
-                Color[] c = new Color[] {Color.red, Color.orange, Color.blue, Color.yellow};
-                renderer.fillTriangle(p1New, p2New, p3New, c[rand.nextInt(c.length)]);
-            }
-            catch(IndexOutOfBoundsException e) {}
+            Point normal = Common.crossProduct(Common.vectorFromPoint(p1New, p2New),
+                                            Common.vectorFromPoint(p3New, p1New));
+            Common.normalize(normal);
+            float intensity = Common.dotProduct(normal, light.direction);
+            
+            int grayscale = intensity <= 0 ? 1 : (int) (255 * intensity);
+
+            renderer.fillTriangle(p1New, p2New, p3New, new Color(grayscale, grayscale, grayscale));
         }
     }
 
@@ -113,28 +113,24 @@ public class Mesh
 
         for(int i = 0; i < triangles.size(); i += 3)
         {
-            try
-            {
-                // vertices is 0-indexed
-                Point p1 = vertices.get(triangles.get(i) - 1);
-                Point p2 = vertices.get(triangles.get(i+1) - 1);
-                Point p3 = vertices.get(triangles.get(i+2) - 1);
+            // vertices is 0-indexed
+            Point p1 = vertices.get(triangles.get(i) - 1);
+            Point p2 = vertices.get(triangles.get(i+1) - 1);
+            Point p3 = vertices.get(triangles.get(i+2) - 1);
 
-                // applying transformation and scaling on the vertex
-                Point p1New = new Point(p1.x * scale.x + position.x,
-                            window.getHeight() - p1.y * scale.y + position.y,
-                            p1.z * scale.z + position.z);
-                Point p2New = new Point(p2.x * scale.x + position.x,
-                            window.getHeight() - p2.y * scale.y + position.y,
-                            p2.z * scale.z + position.z);
-                Point p3New = new Point(p3.x * scale.x + position.x,
-                            window.getHeight() - p3.y * scale.y + position.y,
-                            p3.z * scale.z + position.z);
+            // applying transformation and scaling on the vertex
+            Point p1New = new Point(p1.x * scale.x + position.x,
+                        window.getHeight() - p1.y * scale.y - position.y,
+                        p1.z * scale.z + position.z);
+            Point p2New = new Point(p2.x * scale.x + position.x,
+                        window.getHeight() - p2.y * scale.y - position.y,
+                        p2.z * scale.z + position.z);
+            Point p3New = new Point(p3.x * scale.x + position.x,
+                        window.getHeight() - p3.y * scale.y - position.y,
+                        p3.z * scale.z + position.z);
 
-                // drawing the triangle
-                renderer.triangle(p1New, p2New, p3New, color);
-            }
-            catch(IndexOutOfBoundsException e) {}
+            // drawing the triangle
+            renderer.triangle(p1New, p2New, p3New, color);
         }
     }
 }
