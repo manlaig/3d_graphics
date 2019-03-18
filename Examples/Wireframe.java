@@ -1,18 +1,31 @@
 package examples;
 
-import src.Line;
-import src.Point;
 import java.io.FileNotFoundException;
+import javax.swing.*;
+import java.awt.Color;
+import src.Mesh;
+import src.Shape;
+import src.Point;
 
 public class Wireframe
 {
     public static void main(String[] args)
     {
-        Line line = new Line();
+        int width = 800;
+        int height = 800;
+        float scale = 250;
+        JFrame window = new JFrame();
+
+        window.setSize(width, height);
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setVisible(true);
+
+        Mesh head = new Mesh(window, "./Models/african_head.obj");
+        Mesh pose = new Mesh(window, "./Models/diablo3_pose.obj");
         try
         {
-            line.wireFrameRender("./Models/african_head.obj", new Point(-line.width/4, 0), 250);
-            line.wireFrameRender("./Models/diablo3_pose.obj", new Point(line.width/4, 0), 250);
+            head.wireFrameRender(new Point(3*width/4, height/2), scale);
+            pose.wireFrameRender(new Point(width/4, height/2), scale);
         }
         catch(FileNotFoundException e)
         {
