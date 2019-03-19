@@ -16,7 +16,7 @@ public class Lighting
     {
         int width = 800;
         int height = 800;
-        Point scale = new Point(150, 150, 150);
+        Point scale = new Point(250, 250, 250);
         Light light = new Light(new Point(0, 0, 1));
         JFrame window = new JFrame();
 
@@ -26,8 +26,8 @@ public class Lighting
 
         try
         {
-            Mesh head = new Mesh(window, "./Models/ball.obj");
-            Mesh pose = new Mesh(window, "./Models/basketball_hoop.obj");
+            Mesh head = new Mesh(window, "./Models/african_head.obj");
+            Mesh pose = new Mesh(window, "./Models/diablo3_pose.obj");
 
             // the origin is bottom-left
             head.renderLighted(new Point(3*width/4, height/2), scale, light);

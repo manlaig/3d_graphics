@@ -33,4 +33,13 @@ public abstract class Common
         p.y = p.y / mag;
         p.z = p.z / mag;
     }
+
+    // you need a wrapper to swapper class to swap objects
+    // so we can't make a generic swap function
+    public static void swapPoints(Point a, Point b)
+    {
+        Point t = new Point(a.x, a.y, a.z);
+        a.x = b.x;  a.y = b.y;  a.z = b.z;
+        b.x = t.x;  b.y = t.y;  b.z = t.z;
+    }
 }

@@ -18,25 +18,31 @@ public class Mesh
     ArrayList<Point> vertices;
     ArrayList<Integer> triangles;
 
-    public Mesh(JFrame window, String fileName) throws FileNotFoundException
+    public Mesh(JFrame window, String filePath) throws FileNotFoundException
     {
         renderer = new Shape(window);
         this.window = window;
+        parseOBJFile(filePath);
+    }
 
+    // look at .obj file format before reading this function
+    private void parseOBJFile(String filePath) throws FileNotFoundException
+    {
         vertices = new ArrayList<>();
         triangles = new ArrayList<>();
 
         // to normalize the positions of the meshes
         Point smallest = new Point(1, 1, 1);
         
-        Scanner sc = new Scanner(new File(fileName));
+        Scanner sc = new Scanner(new File(filePath));
 
         while(sc.hasNextLine())
         {
             String line = sc.nextLine();
             if(line.length() < 7)
-            continue;
+                continue;
             String[] nums = line.split("\\s+");
+
             if(nums[0].equals("v"))
             {
                 // vertex
@@ -65,7 +71,6 @@ public class Mesh
             else if (nums[0].equals("f"))
             {
                 // triangle
-                // points[0] is "f"
                 // the triangle data starts from points[1]
                 String[] v0 = nums[1].split("/");
                 String[] v1 = nums[2].split("/");
@@ -77,7 +82,9 @@ public class Mesh
                 triangles.add(Integer.valueOf(v2[0]));
             }
         }
-
+        sc.close();
+        
+        // some .obj file have too big position values
         for(Point vertex : vertices)
         {
             vertex.x /= smallest.x;
@@ -116,8 +123,12 @@ public class Mesh
         }
     }
 
-    // ONLY supports .OBJ files
-    // look at .obj file format before reading this function
+    public void renderLightedZBuffer(Point position, Point scale, Light light)
+    {
+        int[] zbuffer = new int[window.getWidth() * window.getHeight()];
+        
+    }
+
     public void wireFrameRender(Point position, Point scale, Color color)
     {
         // TODO: handle rotation also
@@ -129,7 +140,7 @@ public class Mesh
             Point p2 = vertices.get(triangles.get(i+1) - 1);
             Point p3 = vertices.get(triangles.get(i+2) - 1);
 
-            // applying transformation and scaling on the vertex
+            // applying transformation and scaling on the vertices
             Point p1New = new Point(p1.x * scale.x + position.x,
                         window.getHeight() - p1.y * scale.y - position.y,
                         p1.z * scale.z + position.z);
