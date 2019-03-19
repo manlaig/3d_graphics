@@ -15,7 +15,7 @@ public class Wireframe
     {
         int width = 800;
         int height = 800;
-        Point scale = new Point(250, 250, 250);
+        Point scale = new Point(200, 200, 200);
         JFrame window = new JFrame();
 
         window.setSize(width, height);
@@ -25,10 +25,10 @@ public class Wireframe
         try
         {
             Mesh head = new Mesh(window, "./Models/african_head.obj");
-            Mesh pose = new Mesh(window, "./Models/diablo3_pose.obj");
+            Mesh ball = new Mesh(window, "./Models/ball.obj");
             // the origin is bottom-left
             head.wireFrameRender(new Point(3*width/4, height/2), scale, Color.black);
-            pose.wireFrameRender(new Point(width/4, height/2), scale, Color.black);
+            ball.wireFrameRender(new Point(width/4, height/2), scale, Color.black);
         }
         catch(FileNotFoundException e)
         {

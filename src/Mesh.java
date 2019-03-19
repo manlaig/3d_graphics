@@ -25,6 +25,9 @@ public class Mesh
 
         vertices = new ArrayList<>();
         triangles = new ArrayList<>();
+
+        // to normalize the positions of the meshes
+        Point smallest = new Point(1, 1, 1);
         
         Scanner sc = new Scanner(new File(fileName));
 
@@ -32,11 +35,11 @@ public class Mesh
         {
             String line = sc.nextLine();
             if(line.length() < 7)
-                continue;
-            if(line.charAt(0) == 'v' && line.charAt(1) == ' ')
+            continue;
+            String[] nums = line.split("\\s+");
+            if(nums[0].equals("v"))
             {
                 // vertex
-                String[] nums = line.split(" ");
                 try
                 {
                     // nums[0] is "v"
@@ -44,6 +47,10 @@ public class Mesh
                     float x = Float.parseFloat(nums[1]);
                     float y = Float.parseFloat(nums[2]);
                     float z = Float.parseFloat(nums[3]);
+                    
+                    if(x > smallest.x)  smallest.x = x;
+                    if(y > smallest.y)  smallest.y = y;
+                    if(z > smallest.z)  smallest.z = z;
 
                     /*
                         the default origin is at top left,
@@ -55,15 +62,14 @@ public class Mesh
                 }
                 catch(NumberFormatException e) {}
             }
-            else if (line.charAt(0) == 'f')
+            else if (nums[0].equals("f"))
             {
                 // triangle
-                String[] points = line.split(" ");
                 // points[0] is "f"
                 // the triangle data starts from points[1]
-                String[] v0 = points[1].split("/");
-                String[] v1 = points[2].split("/");
-                String[] v2 = points[3].split("/");
+                String[] v0 = nums[1].split("/");
+                String[] v1 = nums[2].split("/");
+                String[] v2 = nums[3].split("/");
 
                 // vi[0] is the vertex that we want
                 triangles.add(Integer.valueOf(v0[0]));
@@ -72,6 +78,12 @@ public class Mesh
             }
         }
 
+        for(Point vertex : vertices)
+        {
+            vertex.x /= smallest.x;
+            vertex.y /= smallest.y;
+            vertex.z /= smallest.z;
+        }
     }
 
     public void renderLighted(Point position, Point scale, Light light)
@@ -96,8 +108,7 @@ public class Mesh
 
             Point normal = Common.crossProduct(Common.vectorFromPoint(p1New, p2New),
                                             Common.vectorFromPoint(p3New, p1New));
-            Common.normalize(normal);
-            float intensity = Common.dotProduct(normal, light.direction);
+            float intensity = light.getIntensity(normal);
             
             int grayscale = intensity <= 0 ? 1 : (int) (255 * intensity);
 
