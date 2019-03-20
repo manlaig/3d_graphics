@@ -18,7 +18,7 @@ import src.Common;
 
     Most functions in this class are not optimized!
 */
-public class Shape extends JFrame
+public final class Shape extends JFrame
 {
     JFrame window;
     int width;
@@ -47,7 +47,7 @@ public class Shape extends JFrame
             return;
         g.setColor(color);
 
-        for(double t = 0; t <= 1; t += 0.007)
+        for(double t = 0; t <= 1; t += 0.05)
         {
             int x = (int) (start.x + t * dirX);
             int y = (int) (start.y + t * dirY);
@@ -77,43 +77,51 @@ public class Shape extends JFrame
     public void fillTriangle(Point p1, Point p2, Point p3, Color color)
     {
         Graphics g = window.getGraphics();
+        if(g == null || p1.y==p2.y && p1.y==p3.y)   return;
+        g.setColor(color);
+
+        int smallestX = (int) Math.min(p1.x, Math.min(p2.x, p3.x));
+        int smallestY = (int) Math.min(p1.y, Math.min(p2.y, p3.y));
+        int biggestX = (int) Math.max(p1.x, Math.max(p2.x, p3.x));
+        int biggestY = (int) Math.max(p1.y, Math.max(p2.y, p3.y));
+
+        for(int y = smallestY; y <= biggestY; y++)
+        {
+            for(int x = smallestX; x <= biggestX; x++)
+            {
+                Point p = Common.getBarycentricPoint(new Point(x, y), p1, p2, p3);
+                if(p.x > 0 && p.y > 0 && p.z > 0)
+                    point(x, y, g);
+            }
+        }
+    }
+
+    public void fillTriangleZBuffer(Point p1, Point p2, Point p3, Color color, float[][] buffer)
+    {
+        Graphics g = window.getGraphics();
         if(g == null)   return;
         g.setColor(color);
 
-        // swing's built-in fill triangle
-        //g.fillPolygon(new int[]{(int)p1.x, (int)p2.x, (int)p3.x},
-                    //new int[]{(int)p1.y, (int)p2.y, (int)p3.y}, 3);
-        
-        // sorting in ascending y order. Order: p1, p2, p3
-        if(p1.y > p2.y)
-            Common.swapPoints(p1, p2);
-        if(p1.y > p3.y)
-            Common.swapPoints(p1, p3);
-        if(p2.y > p3.y)
-            Common.swapPoints(p2, p3);
+        int smallestX = (int) Math.min(p1.x, Math.min(p2.x, p3.x));
+        int smallestY = (int) Math.min(p1.y, Math.min(p2.y, p3.y));
+        int biggestX = (int) Math.max(p1.x, Math.max(p2.x, p3.x));
+        int biggestY = (int) Math.max(p1.y, Math.max(p2.y, p3.y));
 
-        float total_height = p3.y - p1.y;
-        float height_S1 = p2.y - p1.y;
-        float height_S2 = p3.y - p2.y;
-        for(float y = p1.y; y <= p3.y; y++)
+        for(int y = smallestY; y <= biggestY; y++)
         {
-            boolean second_half = y >= p2.y;
-            float total_progress = (y - p1.y) / total_height;
-            float segment_progress = second_half ? (y - p2.y) / height_S2
-                                    : (y - p1.y) / height_S1;
-
-            int hypotenuseDX = (int) (p1.x + (p3.x - p1.x) * total_progress);
-            int sideDX = second_half ? (int) (p2.x + (p3.x - p2.x) * segment_progress)
-                                    : (int) (p1.x + (p2.x - p1.x) * segment_progress);
-
-            if(hypotenuseDX > sideDX)
+            for(int x = smallestX; x <= biggestX; x++)
             {
-                int t = hypotenuseDX;
-                hypotenuseDX = sideDX;
-                sideDX = t;
+                Point p = Common.getBarycentricPoint(new Point(x, y), p1, p2, p3);
+                if(p.x > 0 && p.y > 0 && p.z > 0)
+                {
+                    float z = p1.z * p.x + p2.z * p.y + p3.z * p.z;
+                    if(z < buffer[x][y])
+                    {
+                        buffer[x][y] = z;
+                        point(x, y, g);
+                    } 
+                }
             }
-            for(int x = hypotenuseDX; x <= sideDX; x++)
-                point(x, (int) y, g);
         }
     }
 }

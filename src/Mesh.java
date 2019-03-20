@@ -114,7 +114,8 @@ public class Mesh
                         p3.z * scale.z + position.z);
 
             Point normal = Common.crossProduct(Common.vectorFromPoint(p1New, p2New),
-                                            Common.vectorFromPoint(p3New, p1New));
+                                            Common.vectorFromPoint(p1New, p3New));
+
             float intensity = light.getIntensity(normal);
             
             int grayscale = intensity <= 0 ? 1 : (int) (255 * intensity);
@@ -125,8 +126,35 @@ public class Mesh
 
     public void renderLightedZBuffer(Point position, Point scale, Light light)
     {
-        int[] zbuffer = new int[window.getWidth() * window.getHeight()];
-        
+        float[][] buffer = new float[window.getWidth()][window.getHeight()];
+        for(int i = 0; i < buffer.length; i++)
+            for(int j = 0; j < buffer[i].length; j++)
+                buffer[i][j] = 500000f;
+        for(int i = 0; i < triangles.size(); i += 3)
+        {
+            // vertices is 0-indexed
+            Point p1 = vertices.get(triangles.get(i) - 1);
+            Point p2 = vertices.get(triangles.get(i+1) - 1);
+            Point p3 = vertices.get(triangles.get(i+2) - 1);
+
+            // applying transformation and scaling on the vertex
+            Point p1New = new Point(p1.x * scale.x + position.x,
+                        window.getHeight() - p1.y * scale.y - position.y,
+                        p1.z * scale.z + position.z);
+            Point p2New = new Point(p2.x * scale.x + position.x,
+                        window.getHeight() - p2.y * scale.y - position.y,
+                        p2.z * scale.z + position.z);
+            Point p3New = new Point(p3.x * scale.x + position.x,
+                        window.getHeight() - p3.y * scale.y - position.y,
+                        p3.z * scale.z + position.z);
+
+            Point normal = Common.crossProduct(Common.vectorFromPoint(p1New, p2New),
+                                            Common.vectorFromPoint(p1New, p3New));
+            float intensity = light.getIntensity(normal);
+            
+            int grayscale = intensity <= 0 ? 1 : (int) (255 * intensity);
+            renderer.fillTriangleZBuffer(p1New, p2New, p3New, new Color(grayscale, grayscale, grayscale), buffer);
+        }
     }
 
     public void wireFrameRender(Point position, Point scale, Color color)

@@ -2,7 +2,7 @@ package src;
 
 import src.*;
 
-public abstract class Common
+public final class Common
 {
     public static Point crossProduct(Point p1, Point p2)
     {
@@ -41,5 +41,14 @@ public abstract class Common
         Point t = new Point(a.x, a.y, a.z);
         a.x = b.x;  a.y = b.y;  a.z = b.z;
         b.x = t.x;  b.y = t.y;  b.z = t.z;
+    }
+
+    public static Point getBarycentricPoint(Point p, Point a, Point b, Point c)
+    {
+        Point u = Common.crossProduct(new Point(c.x-a.x, b.x-a.x, a.x-p.x), new Point(c.y-a.y, b.y-a.y, a.y-p.y));
+        /* `pts` and `P` has integer value as coordinates
+        so `abs(u[2])` < 1 means `u[2]` is 0, that means
+        triangle is degenerate, in this case return something with negative coordinates */
+        return new Point(1.f-(u.x-u.y)/u.z, -u.y/u.z, u.x/u.z); 
     }
 }
