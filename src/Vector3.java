@@ -1,16 +1,18 @@
 package src;
 
-public class Point
+import src.*;
+
+public class Vector3
 {
     public float x, y, z;
 
-    public Point(float xx, float yy, float zz)
+    public Vector3(float xx, float yy, float zz)
     {
         x = xx;
         y = yy;
         z = zz;
     }
-    public Point(float xx, float yy)
+    public Vector3(float xx, float yy)
     {
         x = xx;
         y = yy;

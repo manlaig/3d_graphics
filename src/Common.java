@@ -4,29 +4,29 @@ import src.*;
 
 public final class Common
 {
-    public static Point crossProduct(Point p1, Point p2)
+    public static Vector3 crossProduct(Vector3 p1, Vector3 p2)
     {
         float x = p1.y*p2.z - p2.y*p1.z;
         float y = p1.x*p2.z - p2.x*p1.z;
         float z = p1.x*p2.y - p2.x*p1.y;
 
-        return new Point(x, y, z);
+        return new Vector3(x, y, z);
     }
 
-    public static float dotProduct(Point p1, Point p2)
+    public static float dotProduct(Vector3 p1, Vector3 p2)
     {
         return p1.x*p2.x + p1.y*p2.y + p1.z*p2.z;
     }
 
-    public static Point vectorFromPoint(Point from, Point to)
+    public static Vector3 vectorFromVector3(Vector3 from, Vector3 to)
     {
         float x = to.x - from.x;
         float y = to.y - from.y;
         float z = to.z - from.z;
-        return new Point(x, y, z);
+        return new Vector3(x, y, z);
     }
 
-    public static void normalize(Point p)
+    public static void normalize(Vector3 p)
     {
         float mag = (float) Math.sqrt(p.x*p.x + p.y*p.y + p.z*p.z);
         p.x = p.x / mag;
@@ -36,19 +36,19 @@ public final class Common
 
     // you need a wrapper to swapper class to swap objects
     // so we can't make a generic swap function
-    public static void swapPoints(Point a, Point b)
+    public static void swapVector3s(Vector3 a, Vector3 b)
     {
-        Point t = new Point(a.x, a.y, a.z);
+        Vector3 t = new Vector3(a.x, a.y, a.z);
         a.x = b.x;  a.y = b.y;  a.z = b.z;
         b.x = t.x;  b.y = t.y;  b.z = t.z;
     }
 
-    public static Point getBarycentricPoint(Point p, Point a, Point b, Point c)
+    public static Vector3 getBarycentricCoordinates(Vector3 p, Vector3 a, Vector3 b, Vector3 c)
     {
-        Point u = Common.crossProduct(new Point(c.x-a.x, b.x-a.x, a.x-p.x), new Point(c.y-a.y, b.y-a.y, a.y-p.y));
+        Vector3 u = Common.crossProduct(new Vector3(c.x-a.x, b.x-a.x, a.x-p.x), new Vector3(c.y-a.y, b.y-a.y, a.y-p.y));
         /* `pts` and `P` has integer value as coordinates
         so `abs(u[2])` < 1 means `u[2]` is 0, that means
         triangle is degenerate, in this case return something with negative coordinates */
-        return new Point(1.f-(u.x-u.y)/u.z, -u.y/u.z, u.x/u.z); 
+        return new Vector3(1.f-(u.x-u.y)/u.z, -u.y/u.z, u.x/u.z); 
     }
 }

@@ -1,34 +1,42 @@
 package examples;
 
+import java.awt.Color;
 import java.io.FileNotFoundException;
 import javax.swing.*;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Graphics;
 import src.*;
+import src.Camera.*;
 
 public class Lighting
 {
     public static void main(String[] args)
     {
-        int width = 800;
-        int height = 800;
-        Point scale = new Point(250, 250, 250);
-        Light light = new Light(new Point(0, 0, 1));
+        int width = 800, height = 800;
+        
         JFrame window = new JFrame();
         window.setSize(width, height);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.getContentPane().setBackground(Color.black);
         window.setVisible(true);
-        window.setBackground(Color.yellow);
+
+        int cameraSize = 250;
+        OrthographicCamera camera = new OrthographicCamera(new Vector3(0, 0, 0), cameraSize);
+        Light light = new Light(new Vector3(0, 0, 1));
+        Scene scene = new Scene(window, camera, light) {
+            @Override
+            public void Update()
+            {
+                System.out.println("STARTING");
+                // have a loop here
+            }
+        };
         
         try
         {
-            Mesh pose = new Mesh(window, "./Models/pose.obj");
-            Mesh head = new Mesh(window, "./Models/head.obj");
-
-            // the origin is bottom-left
-            head.renderLightedZBuffer(new Point(3*width/4, height/2), scale, light);
-            pose.renderLightedZBuffer(new Point(width/4, height/2), scale, light);
+            Mesh pose = new Mesh(window, "./Models/pose.obj", new Vector3(3*width/4, height/2));
+            Mesh head = new Mesh(window, "./Models/head.obj", new Vector3(width/4, height/2));
+            scene.add(pose);
+            scene.add(head);
+            scene.Render();
         }
         catch(FileNotFoundException e)
         {

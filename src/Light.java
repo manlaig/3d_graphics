@@ -1,21 +1,20 @@
 package src;
 
-import src.Point;
-import src.Common;
+import src.*;
 
 public class Light
 {
-    public Point direction;
+    public Vector3 direction;
 
-    public Light(Point direction)
+    public Light(Vector3 direction)
     {
         // copying rather than sharing an object
-        this.direction = new Point(direction.x, direction.y, direction.z);
+        this.direction = new Vector3(direction.x, direction.y, direction.z);
         Common.normalize(this.direction);
     }
 
     // get light intensity on a triangle with the given normal
-    public float getIntensity(Point normal)
+    public float getIntensity(Vector3 normal)
     {
         Common.normalize(normal);
         float intensity = Common.dotProduct(normal, direction);
