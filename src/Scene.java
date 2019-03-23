@@ -5,6 +5,7 @@ import src.Renderer;
 import src.Camera.*;
 import javax.swing.*;
 import java.awt.Color;
+import java.awt.Window;
 import java.util.ArrayList;
 
 public abstract class Scene
@@ -13,9 +14,13 @@ public abstract class Scene
     private Light light;
     private ArrayList<SceneObject> scene_objects;
     private Renderer renderer;
+    private Window window;
+
+    private int updateDelay = 150; // ms
 
     public Scene(JFrame _window, Camera _camera)
     {
+        window = _window;
         camera = _camera;
         renderer = new Renderer(_window);
         scene_objects = new ArrayList<>();
@@ -23,8 +28,21 @@ public abstract class Scene
         Thread t = new Thread() {
           public void run()
           {
-            Update();
-          }  
+            while(true)
+            {
+                Thread t = new Thread() {
+                    public void run()
+                    {
+                        Update();
+                    }
+                };
+                t.setPriority(1);
+                t.start();
+
+                long timeStart = System.currentTimeMillis();
+                while(System.currentTimeMillis() - timeStart < updateDelay);
+            }
+          }
         };
         t.start();
     }
@@ -35,23 +53,42 @@ public abstract class Scene
         light = _light;
     }
 
+    public Camera getCamera()
+    {
+        return camera;
+    }
+
+    public Light getLight()
+    {
+        return light;
+    }
+
+    public ArrayList<SceneObject> getObjects()
+    {
+        return scene_objects;
+    }
+
     public void add(SceneObject obj)
     {
         scene_objects.add(obj);
     }
 
+    private synchronized void redraw()
+    {
+        window.paint(window.getGraphics());
+    }
+
     public void Render()
     {
-        for(SceneObject obj : scene_objects)
-            if(obj instanceof Mesh && camera instanceof OrthographicCamera)
+        Thread t = new Thread() {
+            public void run()
             {
-                Mesh mesh = (Mesh) obj;
-                float scale = ((OrthographicCamera)camera).size();
-                if(mesh.isLighted && light != null)
-                    renderer.renderLightedZBuffer(mesh, scale, light);
-                else
-                    renderer.wireFrameRender(mesh, scale, Color.black);
+                redraw();
             }
+        };
+        t.setPriority(2);
+        t.start();
+        renderer.Render(this);
     }
 
     public abstract void Update();

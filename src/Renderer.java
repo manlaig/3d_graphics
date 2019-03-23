@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.io.File;
 import java.io.FileNotFoundException;
 import src.*;
+import src.Camera.*;
 
 /*
     The whole purpose of this project is to learn about how graphics engines work,
@@ -97,16 +98,19 @@ public final class Renderer
                 if(p.x > 0 && p.y > 0 && p.z > 0)
                 {
                     float z = p1.z * p.x + p2.z * p.y + p3.z * p.z;
-                    if(z < buffer[x][y])
+                    try
                     {
-                        buffer[x][y] = z;
-                        point(x, y, g);
-                    } 
+                        if(z < buffer[x][y])
+                        {
+                            buffer[x][y] = z;
+                            point(x, y, g);
+                        }
+                    } catch(ArrayIndexOutOfBoundsException e) {} // THIS IS NOT WORKING
                 }
             }
     }
 
-    public void renderLightedZBuffer(Mesh mesh, float scale, Light light)
+    public void renderLightedZBuffer(Mesh mesh, Camera cam, float scale, Light light)
     {
         float[][] buffer = new float[width][height];
         for(int i = 0; i < buffer.length; i++)
@@ -123,16 +127,18 @@ public final class Renderer
             Vector3 p2 = verts.get(tris.get(i+1) - 1);
             Vector3 p3 = verts.get(tris.get(i+2) - 1);
 
+            Vector3 camPos = cam.getPosition();
+
             // applying transformation and scaling on the vertex
-            Vector3 p1New = new Vector3(p1.x * scale + mesh.position.x,
-                        height - p1.y * scale - mesh.position.y,
-                        p1.z * scale + mesh.position.z);
-            Vector3 p2New = new Vector3(p2.x * scale + mesh.position.x,
-                        height - p2.y * scale - mesh.position.y,
-                        p2.z * scale + mesh.position.z);
-            Vector3 p3New = new Vector3(p3.x * scale + mesh.position.x,
-                        height - p3.y * scale - mesh.position.y,
-                        p3.z * scale + mesh.position.z);
+            Vector3 p1New = new Vector3(p1.x * scale + mesh.position.x + camPos.x,
+                        height - p1.y * scale - mesh.position.y + camPos.y,
+                        p1.z * scale + mesh.position.z + camPos.z);
+            Vector3 p2New = new Vector3(p2.x * scale + mesh.position.x + camPos.x,
+                        height - p2.y * scale - mesh.position.y + camPos.y,
+                        p2.z * scale + mesh.position.z + camPos.z);
+            Vector3 p3New = new Vector3(p3.x * scale + mesh.position.x + camPos.x,
+                        height - p3.y * scale - mesh.position.y + camPos.y,
+                        p3.z * scale + mesh.position.z + camPos.z);
 
             Vector3 normal = Common.crossProduct(Common.vectorFromVector3(p1New, p2New),
                                             Common.vectorFromVector3(p1New, p3New));
@@ -144,7 +150,7 @@ public final class Renderer
         }
     }
 
-    public void wireFrameRender(Mesh mesh, float scale, Color color)
+    public void wireFrameRender(Mesh mesh, Camera cam, float scale, Color color)
     {
         // TODO: handle rotation also
         ArrayList<Vector3> verts = mesh.getVertices();
@@ -157,19 +163,41 @@ public final class Renderer
             Vector3 p2 = verts.get(tris.get(i+1) - 1);
             Vector3 p3 = verts.get(tris.get(i+2) - 1);
 
+            Vector3 camPos = cam.getPosition();
+
             // applying transformation and scaling on the vertices
-            Vector3 p1New = new Vector3(p1.x * scale + mesh.position.x,
-                        height - p1.y * scale - mesh.position.y,
-                        p1.z * scale + mesh.position.z);
-            Vector3 p2New = new Vector3(p2.x * scale + mesh.position.x,
-                        height - p2.y * scale - mesh.position.y,
-                        p2.z * scale + mesh.position.z);
-            Vector3 p3New = new Vector3(p3.x * scale + mesh.position.x,
-                        height - p3.y * scale - mesh.position.y,
-                        p3.z * scale + mesh.position.z);
+            Vector3 p1New = new Vector3(p1.x * scale + mesh.position.x + camPos.x,
+                        height - p1.y * scale - mesh.position.y + camPos.y,
+                        p1.z * scale + mesh.position.z + camPos.z);
+            Vector3 p2New = new Vector3(p2.x * scale + mesh.position.x + camPos.x,
+                        height - p2.y * scale - mesh.position.y + camPos.y,
+                        p2.z * scale + mesh.position.z + camPos.z);
+            Vector3 p3New = new Vector3(p3.x * scale + mesh.position.x + camPos.x,
+                        height - p3.y * scale - mesh.position.y + camPos.y,
+                        p3.z * scale + mesh.position.z + camPos.z);
 
             // drawing the triangle
             triangle(p1New, p2New, p3New, color);
         }
+    }
+
+    public void Render(Scene scene)
+    {
+        /*Vector3 pos = obj.position;
+        pos.x += camera.getPosition().x;
+        pos.y += camera.getPosition().y;
+        pos.z += camera.getPosition().z;
+        obj.setPosition(pos);*/
+
+        for(SceneObject obj : scene.getObjects())
+            if(obj instanceof Mesh && scene.getCamera() instanceof OrthographicCamera)
+            {
+                Mesh mesh = (Mesh) obj;
+                float scale = ((OrthographicCamera)scene.getCamera()).size();
+                if(mesh.isLighted && scene.getLight() != null)
+                    renderLightedZBuffer(mesh, scene.getCamera(), scale, scene.getLight());
+                else
+                    wireFrameRender(mesh, scene.getCamera(), scale, Color.white);
+            }
     }
 }

@@ -3,12 +3,14 @@ package examples;
 import java.awt.Color;
 import java.io.FileNotFoundException;
 import javax.swing.*;
+import java.awt.event.*;
+import java.awt.*;
 import src.*;
 import src.Camera.*;
 
 public class Lighting
 {
-    public static void main(String[] args)
+    public static void main(String[] args) throws FileNotFoundException
     {
         int width = 800, height = 800;
         
@@ -18,29 +20,46 @@ public class Lighting
         window.getContentPane().setBackground(Color.black);
         window.setVisible(true);
 
-        int cameraSize = 250;
+        int cameraSize = 150;
         OrthographicCamera camera = new OrthographicCamera(new Vector3(0, 0, 0), cameraSize);
         Light light = new Light(new Vector3(0, 0, 1));
         Scene scene = new Scene(window, camera, light) {
             @Override
             public void Update()
             {
-                System.out.println("STARTING");
-                // have a loop here
+                //System.out.println("Rendering");
+                Render();
             }
         };
         
-        try
+        Mesh pose = new Mesh(window, "./Models/pose.obj", new Vector3(3*width/4, height/2));
+        Mesh head = new Mesh(window, "./Models/head.obj", new Vector3(width/4, height/2));
+
+        window.addKeyListener(new KeyListener()
         {
-            Mesh pose = new Mesh(window, "./Models/pose.obj", new Vector3(3*width/4, height/2));
-            Mesh head = new Mesh(window, "./Models/head.obj", new Vector3(width/4, height/2));
-            scene.add(pose);
-            scene.add(head);
-            scene.Render();
-        }
-        catch(FileNotFoundException e)
-        {
-            System.out.println("file not found");
-        }
+            public void keyPressed(KeyEvent e)
+            {
+                int key = e.getKeyCode();
+            
+                if (key == KeyEvent.VK_A)
+                    pose.getPosition().x -= 15;
+                if (key == KeyEvent.VK_D)
+                    pose.getPosition().x += 15;
+                if (key == KeyEvent.VK_W)
+                    pose.getPosition().y += 15;
+                if (key == KeyEvent.VK_S)
+                    pose.getPosition().y -= 15;
+                if(key == KeyEvent.VK_LEFT)
+                    scene.getCamera().getPosition().x += 10;
+                if(key == KeyEvent.VK_RIGHT)
+                    scene.getCamera().getPosition().x -= 10;
+            }
+
+            public void keyTyped(KeyEvent e) {}
+            public void keyReleased(KeyEvent e) {}   
+        });
+
+        scene.add(pose);
+        scene.add(head);
     }
 }

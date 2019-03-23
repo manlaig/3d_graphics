@@ -11,4 +11,14 @@ public class SceneObject
     {
         position = pos;
     }
+
+    public void setPosition(Vector3 pos)
+    {
+        position = pos;
+    }
+
+    public Vector3 getPosition()
+    {
+        return position;
+    }
 }
