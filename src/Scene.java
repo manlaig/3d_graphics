@@ -1,11 +1,10 @@
 package src;
 
 import src.*;
-import src.Renderer;
 import src.Camera.*;
 import javax.swing.*;
-import java.awt.Color;
-import java.awt.Window;
+import java.awt.*;
+import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 
 public abstract class Scene
@@ -14,15 +13,17 @@ public abstract class Scene
     private Light light;
     private ArrayList<SceneObject> scene_objects;
     private Renderer renderer;
-    private Window window;
+    private JFrame window;
 
-    private int updateDelay = 150; // ms
+    public int updateDelay = 200; // ms
+    public Color backgroundColor = Color.black;
 
     public Scene(JFrame _window, Camera _camera)
     {
         window = _window;
+        window.createBufferStrategy(4);
         camera = _camera;
-        renderer = new Renderer(_window);
+        renderer = new Renderer(window);
         scene_objects = new ArrayList<>();
 
         Thread t = new Thread() {
@@ -34,6 +35,7 @@ public abstract class Scene
                     public void run()
                     {
                         Update();
+                        Render();
                     }
                 };
                 t.setPriority(1);
@@ -53,6 +55,18 @@ public abstract class Scene
         light = _light;
     }
 
+    public void add(SceneObject obj)
+    {
+        scene_objects.add(obj);
+    }
+
+    public void Render()
+    {
+        renderer.Render(this);
+    }
+
+    public abstract void Update();
+
     public Camera getCamera()
     {
         return camera;
@@ -67,29 +81,4 @@ public abstract class Scene
     {
         return scene_objects;
     }
-
-    public void add(SceneObject obj)
-    {
-        scene_objects.add(obj);
-    }
-
-    private synchronized void redraw()
-    {
-        window.paint(window.getGraphics());
-    }
-
-    public void Render()
-    {
-        Thread t = new Thread() {
-            public void run()
-            {
-                redraw();
-            }
-        };
-        t.setPriority(2);
-        t.start();
-        renderer.Render(this);
-    }
-
-    public abstract void Update();
 }

@@ -3,12 +3,8 @@ package src;
 import javax.swing.*;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.util.Scanner;
+import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.io.File;
-import java.io.FileNotFoundException;
 import src.*;
 import src.Camera.*;
 
@@ -20,13 +16,14 @@ import src.Camera.*;
 */
 public final class Renderer
 {
-    private Graphics g;
     private int width;
     private int height;
+    // faster rendering than calling repaint() on JFrame
+    private BufferStrategy drawBuffer;
 
     public Renderer(JFrame window)
     {
-        g = window.getGraphics();
+        drawBuffer = window.getBufferStrategy();
         width = window.getWidth();
         height = window.getHeight();
     }
@@ -36,33 +33,22 @@ public final class Renderer
         g.drawLine(x, y, x, y);
     }
 
-    // OPTIMIZE THIS FUNCTION
-    private void line(Vector3 start, Vector3 end, Color color)
+    private void line(Vector3 start, Vector3 end, Graphics g)
     {
-        if(g == null)   return;
-        float dirX = end.x - start.x;
-        float dirY = end.y - start.y;
-
-        g.setColor(color);
-
-        for(double t = 0; t <= 1; t += 0.05)
-        {
-            int x = (int) (start.x + t * dirX);
-            int y = (int) (start.y + t * dirY);
-            point(x, y, g);
-        }
+        g.drawLine((int)start.x, (int)start.y, (int)end.x, (int)end.y);
     }
 
-    private void triangle(Vector3 p1, Vector3 p2, Vector3 p3, Color color)
+    private void triangle(Vector3 p1, Vector3 p2, Vector3 p3, Graphics g)
     {
-        line(p1, p2, color);
-        line(p2, p3, color);
-        line(p3, p1, color);
+        line(p1, p2, g);
+        line(p2, p3, g);
+        line(p3, p1, g);
     }
 
     private void fillTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Color color)
     {
-        if(g == null || p1.y==p2.y && p1.y==p3.y)   return;
+        Graphics g = drawBuffer.getDrawGraphics();
+        if(g == null)   return;
         g.setColor(color);
 
         int smallestX = (int) Math.min(p1.x, Math.min(p2.x, p3.x));
@@ -79,10 +65,12 @@ public final class Renderer
                     point(x, y, g);
             }
         }
+        g.dispose();
     }
 
     private void fillTriangleZBuffer(Vector3 p1, Vector3 p2, Vector3 p3, Color color, float[][] buffer)
     {
+        Graphics g = drawBuffer.getDrawGraphics();
         if(g == null)   return;
         g.setColor(color);
 
@@ -108,6 +96,7 @@ public final class Renderer
                     } catch(ArrayIndexOutOfBoundsException e) {} // THIS IS NOT WORKING
                 }
             }
+        g.dispose();
     }
 
     public void renderLightedZBuffer(Mesh mesh, Camera cam, float scale, Light light)
@@ -130,6 +119,7 @@ public final class Renderer
             Vector3 camPos = cam.getPosition();
 
             // applying transformation and scaling on the vertex
+            // TODO: use matrix4x4 
             Vector3 p1New = new Vector3(p1.x * scale + mesh.position.x + camPos.x,
                         height - p1.y * scale - mesh.position.y + camPos.y,
                         p1.z * scale + mesh.position.z + camPos.z);
@@ -145,7 +135,8 @@ public final class Renderer
             float intensity = light.getIntensity(normal);
             
             // minimum and maximum grayscale value
-            int grayscale = (int) Math.max(10f, 255 * intensity);
+            float minimumIntensity = 10f;
+            int grayscale = (int) Math.max(minimumIntensity, 255 * intensity);
             fillTriangleZBuffer(p1New, p2New, p3New, new Color(grayscale, grayscale, grayscale), buffer);
         }
     }
@@ -153,6 +144,11 @@ public final class Renderer
     public void wireFrameRender(Mesh mesh, Camera cam, float scale, Color color)
     {
         // TODO: handle rotation also
+
+        Graphics g = drawBuffer.getDrawGraphics();
+        if(g == null)   return;
+        g.setColor(color);
+
         ArrayList<Vector3> verts = mesh.getVertices();
         ArrayList<Integer> tris = mesh.getTriangles();
 
@@ -177,17 +173,16 @@ public final class Renderer
                         p3.z * scale + mesh.position.z + camPos.z);
 
             // drawing the triangle
-            triangle(p1New, p2New, p3New, color);
+            triangle(p1New, p2New, p3New, g);
         }
+        g.dispose();
     }
 
     public void Render(Scene scene)
     {
-        /*Vector3 pos = obj.position;
-        pos.x += camera.getPosition().x;
-        pos.y += camera.getPosition().y;
-        pos.z += camera.getPosition().z;
-        obj.setPosition(pos);*/
+        Graphics g = drawBuffer.getDrawGraphics();
+        g.setColor(scene.backgroundColor);
+        g.fillRect(0, 0, width, height);
 
         for(SceneObject obj : scene.getObjects())
             if(obj instanceof Mesh && scene.getCamera() instanceof OrthographicCamera)
@@ -198,6 +193,7 @@ public final class Renderer
                     renderLightedZBuffer(mesh, scene.getCamera(), scale, scene.getLight());
                 else
                     wireFrameRender(mesh, scene.getCamera(), scale, Color.white);
+                drawBuffer.show();
             }
     }
 }

@@ -17,23 +17,18 @@ public class Lighting
         JFrame window = new JFrame();
         window.setSize(width, height);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.getContentPane().setBackground(Color.black);
         window.setVisible(true);
 
-        int cameraSize = 150;
+        int cameraSize = 250;
         OrthographicCamera camera = new OrthographicCamera(new Vector3(0, 0, 0), cameraSize);
         Light light = new Light(new Vector3(0, 0, 1));
-        Scene scene = new Scene(window, camera, light) {
-            @Override
-            public void Update()
-            {
-                //System.out.println("Rendering");
-                Render();
-            }
+        Scene scene = new Scene(window, camera, light)
+        {
+            public void Update() {}
         };
-        
-        Mesh pose = new Mesh(window, "./Models/pose.obj", new Vector3(3*width/4, height/2));
-        Mesh head = new Mesh(window, "./Models/head.obj", new Vector3(width/4, height/2));
+
+        Mesh pose = new Mesh(window, "./Models/pose.obj", new Vector3(width/2, height/2));
+        scene.add(pose);
 
         window.addKeyListener(new KeyListener()
         {
@@ -58,8 +53,5 @@ public class Lighting
             public void keyTyped(KeyEvent e) {}
             public void keyReleased(KeyEvent e) {}   
         });
-
-        scene.add(pose);
-        scene.add(head);
     }
 }

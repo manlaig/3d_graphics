@@ -1,7 +1,5 @@
 package src;
 
-import src.*;
-
 public class Vector3
 {
     public float x, y, z;

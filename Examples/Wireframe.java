@@ -27,20 +27,17 @@ public class Wireframe
             @Override
             public void Update()
             {
-                System.out.println("STARTING");
-                // have a loop here
             }
         };
 
         try
         {
-            Mesh head = new Mesh(window, "./Models/head.obj", new Vector3(3*width/4, height/2));
-            Mesh pose = new Mesh(window, "./Models/pose.obj", new Vector3(width/4, height/2));
+            Mesh head = new Mesh(window, "./Models/hoop.obj", new Vector3(3*width/4, height/2));
+            Mesh pose = new Mesh(window, "./Models/ball.obj", new Vector3(width/4, height/2));
             head.isLighted = false;
             pose.isLighted = false;
             scene.add(head);
             scene.add(pose);
-            scene.Render();
         }
         catch(FileNotFoundException e)
         {
