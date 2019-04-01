@@ -40,10 +40,12 @@ public final class Matrix4x4
         m[2][2] *= scale;
     }
 
-    public Matrix4x4 multiply(Matrix4x4 mat)
+    // applied the transformation on this.m
+    public Matrix4x4 apply(Matrix4x4 transformation)
     {
-        Matrix4x4 result = Common.matrixMultiply(mat, this);
+        Matrix4x4 result = Common.matrixMultiply(transformation, this);
         m = result.m;
+        // returning this to allow chaining
         return this;
     }
 }
