@@ -135,20 +135,18 @@ public final class Renderer
             rotateY.m[0][0] = (float) Math.cos(delta);
             rotateY.m[2][0] = (float) -Math.sin(delta);
             rotateY.m[0][2] = (float) Math.sin(delta);
-            rotateY.m[2][2] = (float) Math.cos(delta);
-
-            Matrix4x4 translateAfterRot = new Matrix4x4(new Vector3(width * (float)Math.sin(delta/2), 0));      
+            rotateY.m[2][2] = (float) Math.cos(delta);   
 
             Matrix4x4 p1Mat = new Matrix4x4(p1);
-            p1Mat.apply(translate).apply(rotateY).apply(translateAfterRot);
+            p1Mat.apply(rotateY).apply(translate);
             Vector3 p1New = p1Mat.getPosition();
 
             Matrix4x4 p2Mat = new Matrix4x4(p2);
-            p2Mat.apply(translate).apply(rotateY).apply(translateAfterRot);
+            p2Mat.apply(rotateY).apply(translate);
             Vector3 p2New = p2Mat.getPosition();
 
             Matrix4x4 p3Mat = new Matrix4x4(p3);
-            p3Mat.apply(translate).apply(rotateY).apply(translateAfterRot);
+            p3Mat.apply(rotateY).apply(translate);
             Vector3 p3New = p3Mat.getPosition();
 
             Vector3 normal = Common.crossProduct(Common.vectorFromVector3(p1New, p2New),
@@ -161,8 +159,6 @@ public final class Renderer
             fillTriangleZBuffer(p1New, p2New, p3New, new Color(grayscale, grayscale, grayscale), buffer);
         }
         rotationDelta += incRate;
-        if(rotationDelta >= 360 || rotationDelta <= 0)
-            incRate *= -1;
     }
 
     public void wireFrameRender(Mesh mesh, Camera cam, float scale, Color color)
