@@ -14,4 +14,4 @@ javac Examples/Wireframe.java && java examples.Wireframe
 
 ## Lighting
 
-<img src="https://i.imgflip.com/2xg197.gif" title="Real-time Lighting"/>
+<img src="https://i.imgflip.com/2xg1s1.gif" title="Real-time Lighting"/>
