@@ -14,7 +14,7 @@ public abstract class Scene
     private Renderer renderer;
     private JFrame window;
 
-    public int updateDelay = 200; // ms
+    public int updateDelay = 100; // ms
     public Color backgroundColor = Color.black;
 
     public Scene(JFrame _window, Camera _camera)
