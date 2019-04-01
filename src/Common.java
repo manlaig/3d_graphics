@@ -2,6 +2,9 @@ package src;
 
 import src.*;
 
+/*
+    Utility functions
+*/
 public final class Common
 {
     public static Vector3 crossProduct(Vector3 p1, Vector3 p2)
@@ -32,6 +35,11 @@ public final class Common
         p.x = p.x / mag;
         p.y = p.y / mag;
         p.z = p.z / mag;
+    }
+
+    public static Vector3 addVectors(Vector3 a, Vector3 b)
+    {
+        return new Vector3(a.x+b.x, a.y+b.y, a.z+b.z);
     }
 
     // you need a wrapper to swapper class to swap objects
