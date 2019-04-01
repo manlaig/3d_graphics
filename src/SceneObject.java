@@ -4,21 +4,20 @@ import src.*;
 
 public class SceneObject
 {
-    protected Vector3 position;
-    //protected Vector3 rotation;
+    protected Matrix4x4 transform;
 
     protected SceneObject(Vector3 pos)
     {
-        position = pos;
+        transform = new Matrix4x4(pos);
     }
 
     public void setPosition(Vector3 pos)
     {
-        position = pos;
+        transform.setPosition(pos);
     }
 
     public Vector3 getPosition()
     {
-        return position;
+        return transform.getPosition();
     }
 }
