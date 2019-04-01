@@ -99,6 +99,8 @@ public final class Renderer
         g.dispose();
     }
 
+    double rotationDelta = 0;
+    int incRate = 4;
     public void renderLightedZBuffer(Mesh mesh, Camera cam, float scale, Light light)
     {
         float[][] buffer = new float[width][height];
@@ -109,6 +111,19 @@ public final class Renderer
         ArrayList<Vector3> verts = mesh.getVertices();
         ArrayList<Integer> tris = mesh.getTriangles();
 
+        Vector3 camPos = cam.getPosition();
+        Vector3 meshPos = mesh.transform.getPosition();
+
+        Matrix4x4 translate = new Matrix4x4(new Vector3(meshPos.x + camPos.x,
+                                    meshPos.y + camPos.y, meshPos.z + camPos.z));
+        translate.scale(scale);
+
+        /*Matrix4x4 rotateZ = new Matrix4x4();
+        rotateZ.m[0][0] = (float) Math.cos(Math.PI);
+        rotateZ.m[1][0] = (float) -Math.sin(Math.PI);
+        rotateZ.m[0][1] = (float) Math.sin(Math.PI);
+        rotateZ.m[1][1] = (float) Math.cos(Math.PI);*/
+
         for(int i = 0; i < tris.size(); i += 3)
         {
             // vertices is 0-indexed
@@ -116,29 +131,74 @@ public final class Renderer
             Vector3 p2 = verts.get(tris.get(i+1) - 1);
             Vector3 p3 = verts.get(tris.get(i+2) - 1);
 
-            Vector3 camPos = cam.getPosition();
-
             // applying transformation and scaling on the vertex
-            // TODO: use matrix4x4 
-            Vector3 p1New = new Vector3(p1.x * scale + mesh.position.x + camPos.x,
-                        height - p1.y * scale - mesh.position.y + camPos.y,
-                        p1.z * scale + mesh.position.z + camPos.z);
-            Vector3 p2New = new Vector3(p2.x * scale + mesh.position.x + camPos.x,
-                        height - p2.y * scale - mesh.position.y + camPos.y,
-                        p2.z * scale + mesh.position.z + camPos.z);
-            Vector3 p3New = new Vector3(p3.x * scale + mesh.position.x + camPos.x,
-                        height - p3.y * scale - mesh.position.y + camPos.y,
-                        p3.z * scale + mesh.position.z + camPos.z);
+            /*Vector3 p1New = new Vector3(p1.x * scale,
+                        height - p1.y * scale - meshPos.y + camPos.y,
+                        p1.z * scale);
+            Vector3 p2New = new Vector3(p2.x * scale,
+                        height - p2.y * scale - meshPos.y + camPos.y,
+                        p2.z * scale);
+            Vector3 p3New = new Vector3(p3.x * scale,
+                        height - p3.y * scale - meshPos.y + camPos.y,
+                        p3.z * scale);*/
+
+            double delta = Math.toRadians(rotationDelta);
+
+            Matrix4x4 rotateY = new Matrix4x4();
+            rotateY.m[0][0] = (float) Math.cos(delta);
+            rotateY.m[2][0] = (float) -Math.sin(delta);
+            rotateY.m[0][2] = (float) Math.sin(delta);
+            rotateY.m[2][2] = (float) Math.cos(delta);
+
+            Matrix4x4 translateAfterRot = new Matrix4x4(new Vector3(width * (float)Math.sin(delta/2), 0));          
+
+            Matrix4x4 p1Mat = new Matrix4x4(p1);
+            p1Mat.apply(translate).apply(rotateY).apply(translateAfterRot);
+            Vector3 p1New = p1Mat.getPosition();
+
+            Matrix4x4 p2Mat = new Matrix4x4(p2);
+            p2Mat.apply(translate).apply(rotateY).apply(translateAfterRot);
+            Vector3 p2New = p2Mat.getPosition();
+
+            Matrix4x4 p3Mat = new Matrix4x4(p3);
+            p3Mat.apply(translate).apply(rotateY).apply(translateAfterRot);
+            Vector3 p3New = p3Mat.getPosition();
+
+            /*
+            float x = p1New.x;
+            float z = p1New.z;
+            x = (float)Math.cos(delta) * x + (float)Math.sin(delta) * z;
+            z = (float)-Math.sin(delta) * x + (float)Math.cos(delta) * z;
+            p1New.x = x + width * (float)Math.sin(delta/2);
+            p1New.z = z + width * (float)Math.sin(delta/2);
+
+            float x2 = p2New.x;
+            float z2 = p2New.z;
+            x2 = (float)Math.cos(delta) * x2 + (float)Math.sin(delta) * z2;
+            z2 = (float)-Math.sin(delta) * x2 + (float)Math.cos(delta) * z2;
+            p2New.x = x2 + width * (float)Math.sin(delta/2);
+            p2New.z = z2 + width * (float)Math.sin(delta/2);
+
+            float x3 = p3New.x;
+            float z3 = p3New.z;
+            x3 = (float)Math.cos(delta) * x3 + (float)Math.sin(delta) * z3;
+            z3 = (float)-Math.sin(delta) * x3 + (float)Math.cos(delta) * z3;
+            p3New.x = x3 + width * (float)Math.sin(delta/2);
+            p3New.z = z3 + width * (float)Math.sin(delta/2);
+            */
 
             Vector3 normal = Common.crossProduct(Common.vectorFromVector3(p1New, p2New),
                                             Common.vectorFromVector3(p1New, p3New));
             float intensity = light.getIntensity(normal);
             
             // minimum and maximum grayscale value
-            float minimumIntensity = 10f;
+            float minimumIntensity = 0f;
             int grayscale = (int) Math.max(minimumIntensity, 255 * intensity);
             fillTriangleZBuffer(p1New, p2New, p3New, new Color(grayscale, grayscale, grayscale), buffer);
         }
+        rotationDelta += incRate;
+        if(rotationDelta >= 360)
+            rotationDelta = 0;
     }
 
     public void wireFrameRender(Mesh mesh, Camera cam, float scale, Color color)
@@ -161,16 +221,18 @@ public final class Renderer
 
             Vector3 camPos = cam.getPosition();
 
+            Vector3 meshPos = mesh.transform.getPosition();
+
             // applying transformation and scaling on the vertices
-            Vector3 p1New = new Vector3(p1.x * scale + mesh.position.x + camPos.x,
-                        height - p1.y * scale - mesh.position.y + camPos.y,
-                        p1.z * scale + mesh.position.z + camPos.z);
-            Vector3 p2New = new Vector3(p2.x * scale + mesh.position.x + camPos.x,
-                        height - p2.y * scale - mesh.position.y + camPos.y,
-                        p2.z * scale + mesh.position.z + camPos.z);
-            Vector3 p3New = new Vector3(p3.x * scale + mesh.position.x + camPos.x,
-                        height - p3.y * scale - mesh.position.y + camPos.y,
-                        p3.z * scale + mesh.position.z + camPos.z);
+            Vector3 p1New = new Vector3(p1.x * scale + meshPos.x + camPos.x,
+                        height - p1.y * scale - meshPos.y + camPos.y,
+                        p1.z * scale + meshPos.z + camPos.z);
+            Vector3 p2New = new Vector3(p2.x * scale + meshPos.x + camPos.x,
+                        height - p2.y * scale - meshPos.y + camPos.y,
+                        p2.z * scale + meshPos.z + camPos.z);
+            Vector3 p3New = new Vector3(p3.x * scale + meshPos.x + camPos.x,
+                        height - p3.y * scale - meshPos.y + camPos.y,
+                        p3.z * scale + meshPos.z + camPos.z);
 
             // drawing the triangle
             triangle(p1New, p2New, p3New, g);
@@ -181,8 +243,11 @@ public final class Renderer
     public void Render(Scene scene)
     {
         Graphics g = drawBuffer.getDrawGraphics();
+
+        // clearing the screen
         g.setColor(scene.backgroundColor);
         g.fillRect(0, 0, width, height);
+        g.dispose();
 
         for(SceneObject obj : scene.getObjects())
             if(obj instanceof Mesh && scene.getCamera() instanceof OrthographicCamera)

@@ -14,7 +14,6 @@ public class Wireframe
     {
         int width = 800;
         int height = 800;
-        float scale = 250f;
         JFrame window = new JFrame();
 
         window.setSize(width, height);
@@ -23,8 +22,8 @@ public class Wireframe
 
         int cameraSize = 250;
         OrthographicCamera camera = new OrthographicCamera(new Vector3(0, 0, 0), cameraSize);
-        Scene scene = new Scene(window, camera) {
-            @Override
+        Scene scene = new Scene(window, camera)
+        {
             public void Update()
             {
             }

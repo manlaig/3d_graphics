@@ -2,9 +2,8 @@ package src;
 
 import src.*;
 import src.Camera.*;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferStrategy;
+import javax.swing.JFrame;
+import java.awt.Color;
 import java.util.ArrayList;
 
 public abstract class Scene

@@ -12,7 +12,7 @@ public class Lighting
 {
     public static void main(String[] args) throws FileNotFoundException
     {
-        int width = 800, height = 800;
+        int width = 1400, height = 800;
         
         JFrame window = new JFrame();
         window.setSize(width, height);
@@ -21,20 +21,24 @@ public class Lighting
 
         int cameraSize = 250;
         OrthographicCamera camera = new OrthographicCamera(new Vector3(0, 0, 0), cameraSize);
-        Light light = new Light(new Vector3(0, 0, 1));
+        Light light = new Light(new Vector3(0, 0, -1));
+
         Scene scene = new Scene(window, camera, light)
         {
-            public void Update() {}
+            public void Update()
+            {
+            }
         };
 
-        Mesh pose = new Mesh(window, "./Models/pose.obj", new Vector3(width/2, height/2));
+        Mesh pose = new Mesh(window, "./Models/head.obj", new Vector3(width/2, height/2));
         scene.add(pose);
+        scene.backgroundColor = Color.DARK_GRAY;
 
         window.addKeyListener(new KeyListener()
         {
             public void keyPressed(KeyEvent e)
             {
-                int key = e.getKeyCode();
+                /*int key = e.getKeyCode();
             
                 if (key == KeyEvent.VK_A)
                     pose.getPosition().x -= 15;
@@ -45,9 +49,9 @@ public class Lighting
                 if (key == KeyEvent.VK_S)
                     pose.getPosition().y -= 15;
                 if(key == KeyEvent.VK_LEFT)
-                    scene.getCamera().getPosition().x += 10;
+                    scene.getCamera().getPosition().x += 50;
                 if(key == KeyEvent.VK_RIGHT)
-                    scene.getCamera().getPosition().x -= 10;
+                    scene.getCamera().getPosition().x -= 50;*/
             }
 
             public void keyTyped(KeyEvent e) {}
