@@ -135,18 +135,21 @@ public final class Renderer
             rotateY.m[0][0] = (float) Math.cos(delta);
             rotateY.m[2][0] = (float) -Math.sin(delta);
             rotateY.m[0][2] = (float) Math.sin(delta);
-            rotateY.m[2][2] = (float) Math.cos(delta);   
+            rotateY.m[2][2] = (float) Math.cos(delta); 
+            
+            // merging both 2 transformation into 1 matrix
+            rotateY.apply(translate);
 
             Matrix4x4 p1Mat = new Matrix4x4(p1);
-            p1Mat.apply(rotateY).apply(translate);
+            p1Mat.apply(rotateY);
             Vector3 p1New = p1Mat.getPosition();
 
             Matrix4x4 p2Mat = new Matrix4x4(p2);
-            p2Mat.apply(rotateY).apply(translate);
+            p2Mat.apply(rotateY);
             Vector3 p2New = p2Mat.getPosition();
 
             Matrix4x4 p3Mat = new Matrix4x4(p3);
-            p3Mat.apply(rotateY).apply(translate);
+            p3Mat.apply(rotateY);
             Vector3 p3New = p3Mat.getPosition();
 
             Vector3 normal = Common.crossProduct(Common.vectorFromVector3(p1New, p2New),
