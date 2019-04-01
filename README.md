@@ -11,3 +11,7 @@ javac Examples/Wireframe.java && java examples.Wireframe
 ## Wireframe Rendering
 
 <img src="https://i.imgflip.com/2wawon.gif" title="Wireframe Rendering"/>
+
+## Lighting
+
+<img src="https://i.imgflip.com/2xg197.gif" title="Real-time Lighting"/>
