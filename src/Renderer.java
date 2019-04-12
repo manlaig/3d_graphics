@@ -41,9 +41,11 @@ public final class Renderer
 
     private void triangle(Vector3 p1, Vector3 p2, Vector3 p3, Graphics g)
     {
-        line(p1, p2, g);
-        line(p2, p3, g);
-        line(p3, p1, g);
+        g.drawPolygon(new int[]{(int)p1.x, (int)p2.x, (int)p3.x},
+                    new int[]{(int)p1.y, (int)p2.y, (int)p3.y}, 3);
+        //line(p1, p2, g);
+        //line(p2, p3, g);
+        //line(p3, p1, g);
     }
 
     private void fillTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Color color)
@@ -104,9 +106,7 @@ public final class Renderer
         g.dispose();
     }
 
-    double rotationDelta = 0;
-    int incRate = 2;
-    public void renderLightedZBuffer(Mesh mesh, Camera cam, float scale, Light light)
+    public void renderLightedZBuffer(Mesh mesh, Matrix4x4 transformation, Light light)
     {
         float[][] buffer = new float[width][height];
         for(int i = 0; i < buffer.length; i++)
@@ -116,12 +116,6 @@ public final class Renderer
         ArrayList<Vector3> verts = mesh.getVertices();
         ArrayList<Integer> tris = mesh.getTriangles();
 
-        Vector3 camPos = cam.getPosition();
-        Vector3 meshPos = mesh.transform.getPosition();
-
-        Matrix4x4 translate = new Matrix4x4(Common.addVectors(meshPos, camPos));
-        translate.scale(scale);
-
         for(int i = 0; i < tris.size(); i += 3)
         {
             // vertices is 0-indexed
@@ -129,27 +123,13 @@ public final class Renderer
             Vector3 p2 = verts.get(tris.get(i+1) - 1);
             Vector3 p3 = verts.get(tris.get(i+2) - 1);
 
-            double delta = Math.toRadians(rotationDelta);
-
-            Matrix4x4 rotateY = new Matrix4x4();
-            rotateY.m[0][0] = (float) Math.cos(delta);
-            rotateY.m[2][0] = (float) -Math.sin(delta);
-            rotateY.m[0][2] = (float) Math.sin(delta);
-            rotateY.m[2][2] = (float) Math.cos(delta); 
-            
-            // merging both 2 transformation into 1 matrix
-            rotateY.apply(translate);
-
-            Matrix4x4 p1Mat = new Matrix4x4(p1);
-            p1Mat.apply(rotateY);
+            Matrix4x4 p1Mat = new Matrix4x4(p1).apply(transformation);
             Vector3 p1New = p1Mat.getPosition();
 
-            Matrix4x4 p2Mat = new Matrix4x4(p2);
-            p2Mat.apply(rotateY);
+            Matrix4x4 p2Mat = new Matrix4x4(p2).apply(transformation);
             Vector3 p2New = p2Mat.getPosition();
 
-            Matrix4x4 p3Mat = new Matrix4x4(p3);
-            p3Mat.apply(rotateY);
+            Matrix4x4 p3Mat = new Matrix4x4(p3).apply(transformation);
             Vector3 p3New = p3Mat.getPosition();
 
             Vector3 normal = Common.crossProduct(Common.vectorFromVector3(p1New, p2New),
@@ -161,10 +141,9 @@ public final class Renderer
             int grayscale = (int) Math.max(minimumIntensity, 255 * intensity);
             fillTriangleZBuffer(p1New, p2New, p3New, new Color(grayscale, grayscale, grayscale), buffer);
         }
-        rotationDelta += incRate;
     }
 
-    public void wireFrameRender(Mesh mesh, Camera cam, float scale, Color color)
+    public void wireFrameRender(Mesh mesh, Matrix4x4 transformation, Color color)
     {
         Graphics2D g = (Graphics2D) drawBuffer.getDrawGraphics();
         if(g == null)   return;
@@ -175,12 +154,6 @@ public final class Renderer
         ArrayList<Vector3> verts = mesh.getVertices();
         ArrayList<Integer> tris = mesh.getTriangles();
 
-        Vector3 camPos = cam.getPosition();
-        Vector3 meshPos = mesh.transform.getPosition();
-
-        Matrix4x4 translate = new Matrix4x4(Common.addVectors(meshPos, camPos));
-        translate.scale(scale);
-
         for(int i = 0; i < tris.size(); i += 3)
         {
             // vertices is 0-indexed
@@ -188,14 +161,9 @@ public final class Renderer
             Vector3 p2 = verts.get(tris.get(i+1) - 1);
             Vector3 p3 = verts.get(tris.get(i+2) - 1);
 
-            Matrix4x4 p1Mat = new Matrix4x4(p1);
-            p1Mat.apply(translate);
-
-            Matrix4x4 p2Mat = new Matrix4x4(p2);
-            p2Mat.apply(translate);
-
-            Matrix4x4 p3Mat = new Matrix4x4(p3);
-            p3Mat.apply(translate);
+            Matrix4x4 p1Mat = new Matrix4x4(p1).apply(transformation);
+            Matrix4x4 p2Mat = new Matrix4x4(p2).apply(transformation);
+            Matrix4x4 p3Mat = new Matrix4x4(p3).apply(transformation);
 
             // drawing the triangle
             triangle(p1Mat.getPosition(), p2Mat.getPosition(), p3Mat.getPosition(), g);
@@ -203,6 +171,8 @@ public final class Renderer
         g.dispose();
     }
 
+    double rotationDelta = 0;
+    int incRate = 2;
     public void Render(Scene scene)
     {
         Graphics g = drawBuffer.getDrawGraphics();
@@ -217,10 +187,32 @@ public final class Renderer
             {
                 Mesh mesh = (Mesh) obj;
                 float scale = ((OrthographicCamera)scene.getCamera()).size();
+
+                Vector3 camPos = scene.getCamera().getPosition();
+                Vector3 meshPos = mesh.transform.getPosition();
+
+                Matrix4x4 transformation = new Matrix4x4(Common.addVectors(meshPos, camPos));
+                transformation.scale(scale);
+
+                double delta = Math.toRadians(rotationDelta);
+                rotationDelta += incRate;
+                Matrix4x4 rotateY = new Matrix4x4();
+                rotateY.m[0][0] = (float) Math.cos(delta);
+                rotateY.m[2][0] = (float) -Math.sin(delta);
+                rotateY.m[0][2] = (float) Math.sin(delta);
+                rotateY.m[2][2] = (float) Math.cos(delta); 
+                
+                // merging both 2 transformation into 1 matrix
+                rotateY.apply(transformation);
+
                 if(mesh.isLighted && scene.getLight() != null)
-                    renderLightedZBuffer(mesh, scene.getCamera(), scale, scene.getLight());
+                {
+                    renderLightedZBuffer(mesh, rotateY, scene.getLight());
+                }
                 else
-                    wireFrameRender(mesh, scene.getCamera(), scale, Color.white);
+                {
+                    wireFrameRender(mesh, rotateY, Color.white);
+                }
                 drawBuffer.show();
             }
     }
