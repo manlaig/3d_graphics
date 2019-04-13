@@ -13,6 +13,7 @@ public class Mesh extends SceneObject
     public boolean isLighted = true;
 
     private ArrayList<Vector3> vertices;
+    private ArrayList<Vector3> normals;
     private ArrayList<Integer> triangles;
 
     public Mesh(JFrame window, String filePath, Vector3 pos) throws FileNotFoundException
@@ -31,9 +32,15 @@ public class Mesh extends SceneObject
         return triangles;
     }
 
+    public ArrayList<Vector3> getNormals()
+    {
+        return normals;
+    }
+
     // look at .obj file format before reading this function
     private void parseOBJFile(String filePath) throws FileNotFoundException
     {
+        normals = new ArrayList<>();
         vertices = new ArrayList<>();
         triangles = new ArrayList<>();
 
@@ -73,6 +80,15 @@ public class Mesh extends SceneObject
                     vertices.add(vertex);
                 }
                 catch(NumberFormatException e) {}
+            }
+            else if (nums[0].equals("vn"))
+            {
+                float x = Float.parseFloat(nums[1]);
+                float y = Float.parseFloat(nums[2]);
+                float z = Float.parseFloat(nums[3]);
+
+                Vector3 normal = new Vector3(x, y, z);
+                normals.add(normal);
             }
             else if (nums[0].equals("f"))
             {
