@@ -21,6 +21,14 @@ public final class Matrix4x4
         setPosition(pos);
     }
 
+    public Matrix4x4(Matrix4x4 mat)
+    {
+        m = new float[4][4];
+        for(int i = 0; i < 4; i++)
+            for(int j = 0; j < 4; j++)
+                m[i][j] = mat.m[i][j];
+    }
+
     public void setPosition(Vector3 pos)
     {
         m[0][3] = pos.x;
@@ -30,7 +38,10 @@ public final class Matrix4x4
 
     public Vector3 getPosition()
     {
-        return new Vector3(m[0][3], m[1][3], m[2][3]);
+        float divisor = m[3][3];
+        if(m[3][3] == 0)
+            divisor = 1;
+        return new Vector3(m[0][3]/divisor, m[1][3]/divisor, m[2][3]/divisor);
     }
 
     public void scale(float scale)
@@ -40,7 +51,7 @@ public final class Matrix4x4
         m[2][2] *= scale;
     }
 
-    // applied the transformation on this.m
+    // apply the linear transformation on this.m
     public Matrix4x4 apply(Matrix4x4 transformation)
     {
         Matrix4x4 result = Common.matrixMultiply(transformation, this);
