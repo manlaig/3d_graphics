@@ -29,26 +29,45 @@ public final class Renderer
         height = window.getHeight();
     }
 
-    private void point(int x, int y, Graphics g)
+    public void point(int x, int y, Graphics g)
     {
         g.drawLine(x, y, x, y);
     }
 
-    private void line(Vector3 start, Vector3 end, Graphics g)
+    public void line(Vector3 start, Vector3 end, Graphics g)
     {
         g.drawLine((int)start.x, (int)start.y, (int)end.x, (int)end.y);
     }
 
-    private void triangle(Vector3 p1, Vector3 p2, Vector3 p3, Graphics g)
+    public void gradientLine(Vector3 start, Vector3 end, Color from, Color to, Graphics g3d)
     {
-        g.drawPolygon(new int[]{(int)p1.x, (int)p2.x, (int)p3.x},
-                    new int[]{(int)p1.y, (int)p2.y, (int)p3.y}, 3);
-        //line(p1, p2, g);
-        //line(p2, p3, g);
-        //line(p3, p1, g);
+        float r = to.getRed() - from.getRed();
+        float g = to.getGreen() - from.getGreen();
+        float b = to.getBlue() - from.getBlue();
+
+        float x = end.x - start.x;
+        float y = end.y - start.y;
+
+        for(float i = 0; i <= 1f; i += 0.001)
+        {
+            int rr = (int)Math.max(0, Math.min(from.getRed() + (int)r*i, 255));
+            int gg = (int)Math.max(0, Math.min(from.getGreen() + (int)g*i, 255));
+            int bb = (int)Math.max(0, Math.min(from.getBlue() + (int)b*i, 255));
+            g3d.setColor(new Color(rr, gg, bb));
+            point((int)(start.x + x*i), (int)(start.y + y*i), g3d);
+        }
     }
 
-    private void fillTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Color color)
+    public void triangle(Vector3 p1, Vector3 p2, Vector3 p3, Graphics g)
+    {
+        //g.drawPolygon(new int[]{(int)p1.x, (int)p2.x, (int)p3.x},
+                    //new int[]{(int)p1.y, (int)p2.y, (int)p3.y}, 3);
+        line(p1, p2, g);
+        line(p2, p3, g);
+        line(p3, p1, g);
+    }
+
+    public void fillTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Color color)
     {
         Graphics2D g = (Graphics2D) drawBuffer.getDrawGraphics();
         if(g == null)   return;
@@ -114,6 +133,7 @@ public final class Renderer
                 buffer[i][j] = Float.MAX_VALUE;
 
         ArrayList<Vector3> verts = mesh.getVertices();
+        //ArrayList<Vector3> normals = mesh.getNormals();
         ArrayList<Integer> tris = mesh.getTriangles();
 
         for(int i = 0; i < tris.size(); i += 3)
@@ -171,6 +191,7 @@ public final class Renderer
         g.dispose();
     }
 
+    // used for rotation demo
     double rotationDelta = 0;
     int incRate = 2;
     public void Render(Scene scene)
@@ -183,12 +204,14 @@ public final class Renderer
         g.dispose();
 
         for(SceneObject obj : scene.getObjects())
-            if(obj instanceof Mesh && scene.getCamera() instanceof OrthographicCamera)
+        {
+            Camera cam = scene.getCamera();
+            if(obj instanceof Mesh && cam instanceof OrthographicCamera)
             {
                 Mesh mesh = (Mesh) obj;
-                float scale = ((OrthographicCamera)scene.getCamera()).size();
+                float scale = ((OrthographicCamera)cam).size();
 
-                Vector3 camPos = scene.getCamera().getPosition();
+                Vector3 camPos = cam.getPosition();
                 Vector3 meshPos = mesh.transform.getPosition();
 
                 Matrix4x4 transformation = new Matrix4x4(Common.addVectors(meshPos, camPos));
@@ -215,5 +238,11 @@ public final class Renderer
                 }
                 drawBuffer.show();
             }
+        }
     }
 }
+
+
+/*
+    Use vertex normal shading with interpolation
+*/
