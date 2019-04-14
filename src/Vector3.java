@@ -17,6 +17,27 @@ public final class Vector3
         z = 0;
     }
 
+    public Vector3(Vector3 v)
+    {
+        this(v.x, v.y, v.z);   
+    }
+
+    public Vector3 mult(float v)
+    {
+        x *= v;
+        y *= v;
+        z *= v;
+        return this;
+    }
+
+    public Vector3 add(Vector3 v)
+    {
+        x += v.x;
+        y += v.y;
+        z += v.z;
+        return this;
+    }
+
     public String toString()
     {
         StringBuilder str = new StringBuilder();
