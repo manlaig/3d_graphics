@@ -14,13 +14,13 @@ public abstract class Scene
     private Renderer renderer;
     private JFrame window;
 
-    public int updateDelay = 100; // ms
+    public int updateDelay = 200; // ms
     public Color backgroundColor = Color.black;
 
     public Scene(JFrame _window, Camera _camera)
     {
         window = _window;
-        window.createBufferStrategy(4);
+        window.createBufferStrategy(6);
         camera = _camera;
         renderer = new Renderer(window);
         scene_objects = new ArrayList<>();

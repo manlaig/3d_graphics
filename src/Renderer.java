@@ -133,7 +133,7 @@ public final class Renderer
                 buffer[i][j] = Float.MAX_VALUE;
 
         ArrayList<Vector3> verts = mesh.getVertices();
-        //ArrayList<Vector3> normals = mesh.getNormals();
+        ArrayList<Vector3> normals = mesh.getNormals();
         ArrayList<Integer> tris = mesh.getTriangles();
 
         for(int i = 0; i < tris.size(); i += 3)
@@ -152,14 +152,64 @@ public final class Renderer
             Matrix4x4 p3Mat = new Matrix4x4(p3).apply(transformation);
             Vector3 p3New = p3Mat.getPosition();
 
-            Vector3 normal = Common.crossProduct(Common.vectorFromVector3(p1New, p2New),
-                                            Common.vectorFromVector3(p1New, p3New));
-            float intensity = light.getIntensity(normal);
-            
-            // minimum and maximum grayscale value
-            float minimumIntensity = 10f;
-            int grayscale = (int) Math.max(minimumIntensity, 255 * intensity);
-            fillTriangleZBuffer(p1New, p2New, p3New, new Color(grayscale, grayscale, grayscale), buffer);
+            if(!mesh.vertexShadingSupported())
+            {
+                Vector3 normal = Common.crossProduct(Common.vectorFromVector3(p1New, p2New),
+                                                    Common.vectorFromVector3(p1New, p3New));
+                float intensity = light.getIntensity(normal);
+                
+                // minimum and maximum grayscale value
+                float minimumIntensity = 10f;
+                int grayscale = (int) Math.max(minimumIntensity, 255 * intensity);
+                fillTriangleZBuffer(p1New, p2New, p3New, new Color(grayscale, grayscale, grayscale), buffer);
+            }
+            else
+            {
+                Vector3 n1 = normals.get(tris.get(i) - 1);
+                Vector3 n2 = normals.get(tris.get(i+1) - 1);
+                Vector3 n3 = normals.get(tris.get(i+2) - 1);
+                
+                Graphics2D g = (Graphics2D) drawBuffer.getDrawGraphics();
+                if(g == null)   return;
+                g.translate(0, height);
+                g.scale(1, -1);
+    
+                int smallestX = (int) Math.min(p1New.x, Math.min(p2New.x, p3New.x));
+                int smallestY = (int) Math.min(p1New.y, Math.min(p2New.y, p3New.y));
+                int biggestX = (int) Math.max(p1New.x, Math.max(p2New.x, p3New.x));
+                int biggestY = (int) Math.max(p1New.y, Math.max(p2New.y, p3New.y));
+    
+                for(int y = smallestY; y <= biggestY; y++)
+                    for(int x = smallestX; x <= biggestX; x++)
+                    {
+                        Vector3 p = Common.getBarycentricCoordinates(new Vector3(x, y), p1New, p2New, p3New);
+                        //p.x: influence of p1 on the point at (x, y)
+                        //p.y: influence of p2 on the point at (x, y)
+                        //p.z: influence of p3 on the point at (x, y)
+                        if(p.x > 0 && p.y > 0 && p.z > 0)
+                        {
+                            Vector3 n1Inf = new Vector3(n1).mult(p.x);
+                            Vector3 n2Inf = new Vector3(n2).mult(p.y);
+                            Vector3 n3Inf = new Vector3(n3).mult(p.z);
+                            n1Inf.add(n2Inf).add(n3Inf);
+    
+                            float intensity = light.getIntensity(n1Inf);
+                    
+                            float minimumIntensity = 10f;
+                            int grayscale = (int) Math.max(minimumIntensity, 255 * intensity);
+                            g.setColor(new Color(grayscale, grayscale, grayscale));
+                            float z = p1New.z * p.x + p2New.z * p.y + p3New.z * p.z;
+                            try
+                            {
+                                if(z < buffer[x][y])
+                                {
+                                    buffer[x][y] = z;
+                                    point(x, y, g);
+                                }
+                            } catch(ArrayIndexOutOfBoundsException e) {} // THIS IS NOT WORKING
+                        }
+                    }
+            }
         }
     }
 
@@ -241,8 +291,3 @@ public final class Renderer
         }
     }
 }
-
-
-/*
-    Use vertex normal shading with interpolation
-*/

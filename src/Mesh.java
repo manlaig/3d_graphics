@@ -11,10 +11,12 @@ import java.io.FileNotFoundException;
 public class Mesh extends SceneObject
 {
     public boolean isLighted = true;
+    private boolean canVertexShade = false;
 
     private ArrayList<Vector3> vertices;
     private ArrayList<Vector3> normals;
     private ArrayList<Integer> triangles;
+
 
     public Mesh(JFrame window, String filePath, Vector3 pos) throws FileNotFoundException
     {
@@ -35,6 +37,11 @@ public class Mesh extends SceneObject
     public ArrayList<Vector3> getNormals()
     {
         return normals;
+    }
+
+    public boolean vertexShadingSupported()
+    {
+        return canVertexShade;
     }
 
     // look at .obj file format before reading this function
@@ -105,13 +112,18 @@ public class Mesh extends SceneObject
             }
         }
         sc.close();
+
+        if(vertices.size() == normals.size())
+            canVertexShade = true;
         
         // some .obj file have too big position values
-        for(Vector3 vertex : vertices)
+        for(int i = 0; i < vertices.size(); i++)
         {
-            vertex.x /= smallest.x;
-            vertex.y /= smallest.y;
-            vertex.z /= smallest.z;
+            vertices.get(i).x /= smallest.x;
+            vertices.get(i).y /= smallest.y;
+            vertices.get(i).z /= smallest.z;
+            if(canVertexShade)
+                Common.normalize(normals.get(i));
         }
     }
 }

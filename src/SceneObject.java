@@ -4,7 +4,7 @@ import src.*;
 
 public class SceneObject
 {
-    protected Matrix4x4 transform;
+    public Matrix4x4 transform;
 
     protected SceneObject(Vector3 pos)
     {
