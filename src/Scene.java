@@ -8,13 +8,13 @@ import java.util.ArrayList;
 
 public abstract class Scene
 {
-    private Camera camera;
-    private Light light;
-    private ArrayList<SceneObject> scene_objects;
-    private Renderer renderer;
-    private JFrame window;
+    protected Camera camera;
+    protected Light light;
+    protected ArrayList<SceneObject> scene_objects;
+    protected Renderer renderer;
+    protected JFrame window;
 
-    public int updateDelay = 200; // ms
+    public int updateDelay = 250; // ms
     public Color backgroundColor = Color.black;
 
     public Scene(JFrame _window, Camera _camera)

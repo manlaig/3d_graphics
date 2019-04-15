@@ -119,7 +119,7 @@ public final class Renderer
                             buffer[x][y] = z;
                             point(x, y, g);
                         }
-                    } catch(ArrayIndexOutOfBoundsException e) {} // THIS IS NOT WORKING
+                    } catch(ArrayIndexOutOfBoundsException e) {}
                 }
             }
         g.dispose();
@@ -133,7 +133,6 @@ public final class Renderer
                 buffer[i][j] = Float.MAX_VALUE;
 
         ArrayList<Vector3> verts = mesh.getVertices();
-        ArrayList<Vector3> normals = mesh.getNormals();
         ArrayList<Integer> tris = mesh.getTriangles();
 
         for(int i = 0; i < tris.size(); i += 3)
@@ -165,6 +164,7 @@ public final class Renderer
             }
             else
             {
+                ArrayList<Vector3> normals = mesh.getNormals();
                 Vector3 n1 = normals.get(tris.get(i) - 1);
                 Vector3 n2 = normals.get(tris.get(i+1) - 1);
                 Vector3 n3 = normals.get(tris.get(i+2) - 1);
@@ -212,7 +212,7 @@ public final class Renderer
                                     buffer[x][y] = z;
                                     point(x, y, g);
                                 }
-                            } catch(ArrayIndexOutOfBoundsException e) {} // THIS IS NOT WORKING
+                            } catch(ArrayIndexOutOfBoundsException e) {}
                         }
                     }
             }
@@ -247,9 +247,6 @@ public final class Renderer
         g.dispose();
     }
 
-    // used for rotation demo
-    double rotationDelta = 180;
-    int incRate = 2;
     public void Render(Scene scene)
     {
         Graphics g = drawBuffer.getDrawGraphics();
@@ -266,15 +263,16 @@ public final class Renderer
             {
                 Mesh mesh = (Mesh) obj;
 
-                Vector3 camPos = cam.getPosition();
-                Vector3 meshPos = mesh.transform.getPosition();
-
-                Matrix4x4 transformation = new Matrix4x4(Common.addVectors(meshPos, camPos));
+                Vector3 totalTranslate = Common.addVectors(mesh.transform.getPosition(), cam.getPosition());
+                Matrix4x4 transformation = new Matrix4x4(totalTranslate);
                 transformation.scale(mesh.getScale());
-                Matrix4x4 newT = Common.matrixMultiply(transformation, cam.projMatrix);
 
-                double delta = Math.toRadians(rotationDelta);
-                rotationDelta += incRate;
+                // applying the projection matrix on the transformation, which will be applied to each vertex
+                Matrix4x4 projectedTransform = Common.matrixMultiply(transformation, cam.projMatrix);
+
+                // rotating 180 degrees in the y-axis
+                // the head and pose models are turned backwards, so we rotate it 180 degrees
+                double delta = Math.toRadians(180);
                 Matrix4x4 rotateY = new Matrix4x4();
                 rotateY.m[0][0] = (float) Math.cos(delta);
                 rotateY.m[2][0] = (float) -Math.sin(delta);
@@ -283,7 +281,7 @@ public final class Renderer
                 
                 // merging both 2 transformation into 1 matrix
                 // this means we'll rotate, then translate and scale
-                rotateY.apply(newT);
+                rotateY.apply(projectedTransform);
 
                 if(mesh.isLighted && scene.getLight() != null)
                 {
