@@ -168,6 +168,12 @@ public final class Renderer
                 Vector3 n1 = normals.get(tris.get(i) - 1);
                 Vector3 n2 = normals.get(tris.get(i+1) - 1);
                 Vector3 n3 = normals.get(tris.get(i+2) - 1);
+                /*Matrix4x4 n1Mat = new Matrix4x4(n1).apply(transformation);
+                Vector3 n1New = n1Mat.getPosition();
+                Matrix4x4 n2Mat = new Matrix4x4(n2).apply(transformation);
+                Vector3 n2New = n2Mat.getPosition();
+                Matrix4x4 n3Mat = new Matrix4x4(n3).apply(transformation);
+                Vector3 n3New = n3Mat.getPosition();*/
                 
                 Graphics2D g = (Graphics2D) drawBuffer.getDrawGraphics();
                 if(g == null)   return;
@@ -188,13 +194,13 @@ public final class Renderer
                         //p.z: influence of p3 on the point at (x, y)
                         if(p.x > 0 && p.y > 0 && p.z > 0)
                         {
+                            // influence of normal vectors on the point (x, y)
                             Vector3 n1Inf = new Vector3(n1).mult(p.x);
                             Vector3 n2Inf = new Vector3(n2).mult(p.y);
                             Vector3 n3Inf = new Vector3(n3).mult(p.z);
-                            n1Inf.add(n2Inf).add(n3Inf);
-    
-                            float intensity = light.getIntensity(n1Inf);
-                    
+                            Vector3 sum = Common.addVectors(n1Inf, n2Inf, n3Inf);
+
+                            float intensity = light.getIntensity(sum);
                             float minimumIntensity = 10f;
                             int grayscale = (int) Math.max(minimumIntensity, 255 * intensity);
                             g.setColor(new Color(grayscale, grayscale, grayscale));
@@ -242,7 +248,7 @@ public final class Renderer
     }
 
     // used for rotation demo
-    double rotationDelta = 0;
+    double rotationDelta = 180;
     int incRate = 2;
     public void Render(Scene scene)
     {
@@ -256,16 +262,16 @@ public final class Renderer
         for(SceneObject obj : scene.getObjects())
         {
             Camera cam = scene.getCamera();
-            if(obj instanceof Mesh && cam instanceof OrthographicCamera)
+            if(obj instanceof Mesh)
             {
                 Mesh mesh = (Mesh) obj;
-                float scale = ((OrthographicCamera)cam).size();
 
                 Vector3 camPos = cam.getPosition();
                 Vector3 meshPos = mesh.transform.getPosition();
 
                 Matrix4x4 transformation = new Matrix4x4(Common.addVectors(meshPos, camPos));
-                transformation.scale(scale);
+                transformation.scale(mesh.getScale());
+                Matrix4x4 newT = Common.matrixMultiply(transformation, cam.projMatrix);
 
                 double delta = Math.toRadians(rotationDelta);
                 rotationDelta += incRate;
@@ -273,10 +279,11 @@ public final class Renderer
                 rotateY.m[0][0] = (float) Math.cos(delta);
                 rotateY.m[2][0] = (float) -Math.sin(delta);
                 rotateY.m[0][2] = (float) Math.sin(delta);
-                rotateY.m[2][2] = (float) Math.cos(delta); 
+                rotateY.m[2][2] = (float) Math.cos(delta);
                 
                 // merging both 2 transformation into 1 matrix
-                rotateY.apply(transformation);
+                // this means we'll rotate, then translate and scale
+                rotateY.apply(newT);
 
                 if(mesh.isLighted && scene.getLight() != null)
                 {

@@ -19,9 +19,9 @@ public class Lighting
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setVisible(true);
 
-        int cameraSize = 250;
-        OrthographicCamera camera = new OrthographicCamera(new Vector3(0, 0, 0), cameraSize);
-        Light light = new Light(new Vector3(0, 1, -1));
+        //OrthographicCamera camera = new OrthographicCamera(new Vector3(0, 0, 0));
+        PerspectiveCamera camera = new PerspectiveCamera(new Vector3(0,0,0), 4f);
+        Light light = new Light(new Vector3(0, 0, 1));
 
         Scene scene = new Scene(window, camera, light)
         {
@@ -30,7 +30,7 @@ public class Lighting
             }
         };
 
-        Mesh pose = new Mesh(window, "./Models/head.obj", new Vector3(width/2, height/2));
+        Mesh pose = new Mesh(window, "./Models/head.obj", new Vector3(width/2, height/2), 200);
         scene.add(pose);
         scene.backgroundColor = Color.DARK_GRAY;
 
