@@ -20,8 +20,7 @@ public class Wireframe
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setVisible(true);
 
-        int cameraSize = 250;
-        OrthographicCamera camera = new OrthographicCamera(new Vector3(0, 0, 0), cameraSize);
+        OrthographicCamera camera = new OrthographicCamera(new Vector3(0, 0, 0));
         Scene scene = new Scene(window, camera)
         {
             public void Update()
@@ -31,12 +30,9 @@ public class Wireframe
 
         try
         {
-            Mesh head = new Mesh(window, "./Models/hoop.obj", new Vector3(3*width/4, height/2));
-            Mesh pose = new Mesh(window, "./Models/ball.obj", new Vector3(width/4, height/2));
+            Mesh head = new Mesh(window, "./Models/hoop.obj", new Vector3(width/2, height/2), 250);
             head.isLighted = false;
-            pose.isLighted = false;
             scene.add(head);
-            scene.add(pose);
         }
         catch(FileNotFoundException e)
         {

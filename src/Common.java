@@ -37,9 +37,12 @@ public final class Common
         p.z = p.z / mag;
     }
 
-    public static Vector3 addVectors(Vector3 a, Vector3 b)
+    public static Vector3 addVectors(Vector3... arr)
     {
-        return new Vector3(a.x+b.x, a.y+b.y, a.z+b.z);
+        Vector3 res = new Vector3(0,0,0);
+        for(Vector3 v : arr)
+            res.add(v);
+        return res;
     }
 
     // you need a wrapper to swapper class to swap objects
@@ -60,6 +63,7 @@ public final class Common
         return new Vector3(1.f-(u.x-u.y)/u.z, -u.y/u.z, u.x/u.z); 
     }
 
+    // multiplies matrices left to right
     public static Matrix4x4 matrixMultiply(Matrix4x4 left, Matrix4x4 right)
     {
         Matrix4x4 result = new Matrix4x4();
@@ -74,15 +78,5 @@ public final class Common
             }
 
         return result;
-    }
-
-    public static void printMatrix(Matrix4x4 mat)
-    {
-        for(int i = 0; i < 4; i++)
-        {
-            for(int j = 0; j < 4; j++)
-                System.out.print(mat.m[i][j] + " ");
-            System.out.println();
-        }
     }
 }

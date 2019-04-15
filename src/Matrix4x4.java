@@ -59,4 +59,16 @@ public final class Matrix4x4
         // returning this to allow chaining
         return this;
     }
+
+    public String toString()
+    {
+        StringBuilder mat = new StringBuilder();
+        for(int i = 0; i < 4; i++)
+        {
+            for(int j = 0; j < 4; j++)
+                mat.append(m[i][j] + " ");
+            mat.append("\n");
+        }
+        return mat.toString();
+    }
 }

@@ -38,6 +38,14 @@ public final class Vector3
         return this;
     }
 
+    public void normalize()
+    {
+        float mag = (float) Math.sqrt(x*x + y*y + z*z);
+        x = x / mag;
+        y = y / mag;
+        z = z / mag;
+    }
+
     public String toString()
     {
         StringBuilder str = new StringBuilder();
