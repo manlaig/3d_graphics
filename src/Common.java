@@ -45,6 +45,17 @@ public final class Common
         return res;
     }
 
+    public static Vector3 subtractVectors(Vector3... arr)
+    {
+        if(arr.length <= 1)
+            return new Vector3(0,0);
+            
+        Vector3 res = new Vector3(arr[0]);
+        for(int i = 1; i < arr.length; i++)
+            res.subtract(arr[i]);
+        return res;
+    }
+
     // you need a wrapper to swapper class to swap objects
     // so we can't make a generic swap function
     public static void swapVector3s(Vector3 a, Vector3 b)

@@ -38,6 +38,14 @@ public final class Vector3
         return this;
     }
 
+    public Vector3 subtract(Vector3 v)
+    {
+        x -= v.x;
+        y -= v.y;
+        z -= v.z;
+        return this;
+    }
+
     public void normalize()
     {
         float mag = (float) Math.sqrt(x*x + y*y + z*z);
