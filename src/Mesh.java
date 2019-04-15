@@ -17,10 +17,9 @@ public class Mesh extends SceneObject
     private ArrayList<Vector3> normals;
     private ArrayList<Integer> triangles;
 
-
-    public Mesh(JFrame window, String filePath, Vector3 pos) throws FileNotFoundException
+    public Mesh(JFrame window, String filePath, Vector3 pos, float scale) throws FileNotFoundException
     {
-        super(pos);
+        super(pos, scale);
         parseOBJFile(filePath);
     }
 
