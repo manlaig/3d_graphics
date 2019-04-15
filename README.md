@@ -8,10 +8,14 @@ cd 3d_graphics
 javac Examples/Wireframe.java && java examples.Wireframe
 ```
 
-## Wireframe Rendering
-
-<img src="https://i.imgflip.com/2wawon.gif" title="Wireframe Rendering"/>
-
 ## Lighting
 
 <img src="https://i.imgflip.com/2xg1s1.gif" title="Real-time Lighting"/>
+
+## Vertex Normal Shading
+
+<img src="https://i.imgflip.com/2ylg9m.gif" title="Vertex normal shading"/>
+
+## Wireframe Rendering
+
+<img src="https://i.imgflip.com/2wawon.gif" title="Wireframe Rendering"/>
