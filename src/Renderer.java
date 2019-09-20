@@ -126,7 +126,7 @@ public final class Renderer
         g.dispose();
     }
 
-    public void renderTextured(Mesh mesh, Matrix4x4 transformation)
+    public void renderTextured(Mesh mesh, Matrix4x4 transformation, Light light)
     {
         float[][] buffer = new float[width][height];
         for(int i = 0; i < buffer.length; i++)
@@ -185,7 +185,8 @@ public final class Renderer
                                 Vector3 textureAtXY = Common.addVectors(new Vector3(t1).mult(p.x),
                                                                         new Vector3(t2).mult(p.y),
                                                                         new Vector3(t3).mult(p.z));
-                                int colorAtXY = texture.getRGB((int)(textureAtXY.x * texture.getWidth()), (int)(textureAtXY.y * texture.getHeight()));
+                                int colorAtXY = texture.getRGB( (int)(textureAtXY.x * texture.getWidth()),
+                                                                (int)(textureAtXY.y * texture.getHeight()) );
                                 g.setColor(ImageReader.getColor(colorAtXY));
                                 point(x, y, g);
                             }
@@ -239,12 +240,6 @@ public final class Renderer
                 Vector3 n1 = normals.get(tris.get(i) - 1);
                 Vector3 n2 = normals.get(tris.get(i+1) - 1);
                 Vector3 n3 = normals.get(tris.get(i+2) - 1);
-                /*Matrix4x4 n1Mat = new Matrix4x4(n1).apply(transformation);
-                Vector3 n1New = n1Mat.getPosition();
-                Matrix4x4 n2Mat = new Matrix4x4(n2).apply(transformation);
-                Vector3 n2New = n2Mat.getPosition();
-                Matrix4x4 n3Mat = new Matrix4x4(n3).apply(transformation);
-                Vector3 n3New = n3Mat.getPosition();*/
                 
                 Graphics2D g = (Graphics2D) drawBuffer.getDrawGraphics();
                 if(g == null)   return;
@@ -318,6 +313,7 @@ public final class Renderer
         g.dispose();
     }
 
+    double rot = 180;
     public void Render(Scene scene)
     {
         Graphics g = drawBuffer.getDrawGraphics();
@@ -343,7 +339,8 @@ public final class Renderer
 
                 // rotating 180 degrees in the y-axis
                 // the head and pose models are turned backwards, so we rotate it 180 degrees
-                double delta = Math.toRadians(45);
+                double delta = Math.toRadians(rot);
+                rot += 10;
                 Matrix4x4 rotateY = new Matrix4x4();
                 rotateY.m[0][0] = (float) Math.cos(delta);
                 rotateY.m[2][0] = (float) -Math.sin(delta);
@@ -356,7 +353,7 @@ public final class Renderer
 
                 if(mesh.isTextured())
                 {
-                    renderTextured(mesh, rotateY);
+                    renderTextured(mesh, rotateY, scene.getLight());
                 }
                 else if(mesh.isLighted && scene.getLight() != null)
                 {

@@ -12,16 +12,17 @@ public class Lighting extends Scene
 {
     // used for rotation demo
     double rotationDelta = 0;
-    int incRate = 1;
+    float incRate = 0.25f;
 
     public Lighting(JFrame window, Camera camera, Light light)
     {
         super(window, camera, light);
-        updateDelay = 400;
+        updateDelay = 200;
     }
 
     public void Update()
     {
+        
         double delta = Math.toRadians(rotationDelta);
         rotationDelta += incRate;
         Matrix4x4 rotateY = new Matrix4x4();
@@ -32,6 +33,7 @@ public class Lighting extends Scene
 
         Matrix4x4 m = Common.matrixMultiply(rotateY, new Matrix4x4(light.direction));
         light.direction = m.getPosition();
+        
     }
 
     public static void main(String[] args) throws FileNotFoundException
@@ -50,7 +52,6 @@ public class Lighting extends Scene
 
         Mesh pose = new Mesh(window, "./Models/head.obj", new Vector3(width/2, height/2), 300);
         scene.add(pose);
-        scene.backgroundColor = Color.DARK_GRAY;
 
         window.addKeyListener(new KeyListener()
         {
